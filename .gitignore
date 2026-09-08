@@ -1,0 +1,39 @@
+# dependencies
+node_modules/
+
+# build / preview
+dist/
+.output/
+.vercel/
+.nitro/
+.tanstack/
+*.local
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# editor
+.idea/
+.vscode/
+*.swp
+
+# sandbox / QA (not part of the product)
+.grok/
+screenshots/
+artifacts/
+attachments/
+AGENTS.md
+AGENTS.project.md
+startup.sh
+.project_id
+.node_modules.lock
+
+# generated
+*.tsbuildinfo
