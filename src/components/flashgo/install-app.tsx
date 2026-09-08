@@ -26,6 +26,10 @@ function isIos() {
   return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
+function isAndroid() {
+  return /android/i.test(navigator.userAgent);
+}
+
 function iosInstallUrl() {
   const url = new URL(window.location.href);
   url.searchParams.set("install", "1");
@@ -149,14 +153,17 @@ function InstallSheet({ onClose }: { onClose: () => void }) {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs font-medium tracking-wide text-subtle uppercase">{APP_NAME}</p>
-            <h2 className="font-display mt-1 text-xl font-medium tracking-tight">Install on this device</h2>
+            <h2 className="font-display mt-1 text-xl font-medium tracking-tight">
+              {isAndroid() ? "Install the Android app" : "Install on this device"}
+            </h2>
           </div>
           <Button type="button" variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close">
             <X className="size-4" />
           </Button>
         </div>
         <p className="mt-2 text-sm text-muted">
-          Add {APP_NAME} to your home screen or desktop so it opens full-screen like an app.
+          Android gets a real APK. iPhone and computers can add TST Go to the home
+          screen from the browser.
         </p>
         <ul className="mt-4 space-y-3">
           <li className="flex gap-3">
@@ -164,8 +171,9 @@ function InstallSheet({ onClose }: { onClose: () => void }) {
               <Smartphone className="size-4" />
             </span>
             <span className="text-sm text-muted">
-              <span className="block font-medium text-fg">Phone</span>
-              Chrome or Edge: use Install below. iPhone: Share, then Add to Home Screen.
+              <span className="block font-medium text-fg">Android APK</span>
+              Download the installer, allow unknown apps if asked, then open TST Go.
+              To feed GPS to other apps: Developer options → Select mock location app → TST Go.
             </span>
           </li>
           <li className="flex gap-3">
@@ -173,32 +181,37 @@ function InstallSheet({ onClose }: { onClose: () => void }) {
               <Share className="size-4" />
             </span>
             <span className="text-sm text-muted">
-              <span className="block font-medium text-fg">Computer</span>
-              In Chrome or Edge, open the browser menu and choose Install app.
+              <span className="block font-medium text-fg">iPhone / computer</span>
+              iPhone: Share, then Add to Home Screen. Chrome or Edge: Install app from the menu.
             </span>
           </li>
         </ul>
         <div className="mt-5 flex flex-col gap-2">
+          <Button asChild className="h-12 w-full rounded-2xl">
+            <a href="/tst-go.apk" download="TST-Go.apk">
+              <Download className="size-4" />
+              Download Android APK
+            </a>
+          </Button>
           {prompt ? (
             <Button
               type="button"
+              variant="secondary"
               className="h-12 w-full rounded-2xl"
               onClick={() => void tryNativeInstall()}
             >
-              Install {APP_NAME}
+              Install browser app
             </Button>
-          ) : (
+          ) : isIos() ? (
             <Button
               type="button"
+              variant="secondary"
               className="h-12 w-full rounded-2xl"
-              onClick={() => {
-                if (isIos()) window.location.assign(iosInstallUrl());
-                else onClose();
-              }}
+              onClick={() => window.location.assign(iosInstallUrl())}
             >
-              {isIos() ? "Show iPhone steps" : "Got it"}
+              Show iPhone steps
             </Button>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

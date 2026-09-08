@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#FF0B0C0E</color>
+    <color name="surface">#E614161A</color>
+    <color name="surface2">#FF1C1F24</color>
+    <color name="fg">#FFF2F3F5</color>
+    <color name="muted">#FF9AA0A8</color>
+    <color name="subtle">#FF6B7178</color>
+    <color name="live">#FF5EA37A</color>
+    <color name="live_fg">#FF07140C</color>
+    <color name="stop">#FFC45C5C</color>
+    <color name="stop_fg">#FF1A0808</color>
+    <color name="accent">#FF9EB0C0</color>
+    <color name="transparent">#00000000</color>
+</resources>

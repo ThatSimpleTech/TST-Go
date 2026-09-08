@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TST Go</string>
+    <string name="search_hint">Search a city, address, or lat, lng</string>
+    <string name="idle_pin">Idle pin</string>
+    <string name="live_signal">Live signal</string>
+    <string name="paused">Paused</string>
+    <string name="go">Go</string>
+    <string name="stop">Stop</string>
+    <string name="jump">Jump</string>
+    <string name="walk">Walk</string>
+    <string name="cycle">Cycle</string>
+    <string name="drive">Drive</string>
+    <string name="broadcast">Broadcast to other apps</string>
+    <string name="broadcast_help">Developer options → Select mock location app → TST Go. Then other apps can use this GPS.</string>
+    <string name="need_mock_app">Select TST Go as the mock location app in Developer options first.</string>
+    <string name="copied">Coordinates copied</string>
+</resources>
