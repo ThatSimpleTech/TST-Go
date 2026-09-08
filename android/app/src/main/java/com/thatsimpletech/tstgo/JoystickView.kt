@@ -42,6 +42,7 @@ class JoystickView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                parent?.requestDisallowInterceptTouchEvent(true)
                 val cx = width / 2f
                 val cy = height / 2f
                 val r = min(cx, cy)

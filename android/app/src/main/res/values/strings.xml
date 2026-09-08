@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">TST Go</string>
-    <string name="search_hint">Search a city, address, or lat, lng</string>
+    <string name="search_hint">Search a city, mall, address, or lat, lng</string>
+    <string name="search_action">Search</string>
     <string name="idle_pin">Idle pin</string>
     <string name="live_signal">Live signal</string>
     <string name="paused">Paused</string>

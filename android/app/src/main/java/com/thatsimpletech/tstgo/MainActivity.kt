@@ -8,7 +8,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -22,8 +25,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.tileprovider.tilesource.XYTileSource
+import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
@@ -49,7 +53,10 @@ class MainActivity : AppCompatActivity() {
             marker?.rotation = (-engine.heading).toFloat()
             bind.map.invalidate()
             if (engine.running && !engine.paused) {
-                bind.map.controller.animateTo(GeoPoint(p.lat, p.lng))
+                val stick = kotlin.math.hypot(engine.stickX.toDouble(), engine.stickY.toDouble())
+                if (stick > 0.08 || engine.speedKmh > 0.4) {
+                    bind.map.controller.animateTo(GeoPoint(p.lat, p.lng))
+                }
             }
             if (bind.broadcastSwitch.isChecked) {
                 MockBus.push(this@MainActivity, p.lat, p.lng, engine.heading, engine.speedKmh)
@@ -70,22 +77,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(bind.root)
         askPerms()
 
-        bind.map.setTileSource(
-            XYTileSource(
-                "CartoDark",
-                1,
-                19,
-                256,
-                ".png",
-                arrayOf(
-                    "https://a.basemaps.cartocdn.com/dark_all/",
-                    "https://b.basemaps.cartocdn.com/dark_all/",
-                    "https://c.basemaps.cartocdn.com/dark_all/",
-                ),
-            ),
-        )
+        bind.map.setTileSource(EsriStreetTiles())
         bind.map.setMultiTouchControls(true)
+        bind.map.setTilesScaledToDpi(true)
         bind.map.minZoomLevel = 3.0
+        bind.map.maxZoomLevel = 19.0
         bind.map.controller.setZoom(15.0)
         bind.map.controller.setCenter(GeoPoint(engine.pick.lat, engine.pick.lng))
 
@@ -100,15 +96,7 @@ class MainActivity : AppCompatActivity() {
             MapEventsOverlay(
                 object : MapEventsReceiver {
                     override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
-                        engine.pin(LatLng(p.latitude, p.longitude), "Dropped pin")
-                        if (!engine.running) {
-                            pin.position = p
-                            bind.map.invalidate()
-                        }
-                        engine.waypoints.clear()
-                        engine.waypoints.add(engine.pos())
-                        engine.waypoints.add(LatLng(p.latitude, p.longitude))
-                        updateHud()
+                        goTo(LatLng(p.latitude, p.longitude), "Dropped pin")
                         return true
                     }
                     override fun longPressHelper(p: GeoPoint) = false
@@ -118,9 +106,22 @@ class MainActivity : AppCompatActivity() {
 
         bind.search.setOnEditorActionListener { v, action, _ ->
             if (action == EditorInfo.IME_ACTION_SEARCH || action == EditorInfo.IME_ACTION_DONE) {
-                doSearch(v.text.toString())
+                doSearch(v.text.toString(), quiet = false)
+                hideKeyboard()
                 true
             } else false
+        }
+        bind.search.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                ui.removeCallbacks(searchDebounce)
+                ui.postDelayed(searchDebounce, 280)
+            }
+        })
+        bind.searchGo.setOnClickListener {
+            doSearch(bind.search.text.toString(), quiet = false)
+            hideKeyboard()
         }
 
         bind.hud.setOnClickListener {
@@ -227,11 +228,20 @@ class MainActivity : AppCompatActivity() {
         bind.map.invalidate()
     }
 
-    private fun doSearch(q: String) {
+    private val searchDebounce = Runnable {
+        doSearch(bind.search.text.toString(), quiet = true)
+    }
+
+    private fun doSearch(q: String, quiet: Boolean) {
         val query = q.trim()
-        if (query.isEmpty()) return
+        if (query.length < 2) {
+            bind.results.removeAllViews()
+            bind.results.visibility = LinearLayout.GONE
+            return
+        }
         parseCoords(query)?.let {
             goTo(it, "Pinned coordinates")
+            bind.results.visibility = LinearLayout.GONE
             return
         }
         searchJob?.cancel()
@@ -246,7 +256,9 @@ class MainActivity : AppCompatActivity() {
             bind.results.removeAllViews()
             if (hits.isEmpty()) {
                 bind.results.visibility = LinearLayout.GONE
-                Toast.makeText(this@MainActivity, "No places match that search", Toast.LENGTH_SHORT).show()
+                if (!quiet) {
+                    Toast.makeText(this@MainActivity, "No places match that search", Toast.LENGTH_SHORT).show()
+                }
                 return@launch
             }
             bind.results.visibility = LinearLayout.VISIBLE
@@ -259,6 +271,8 @@ class MainActivity : AppCompatActivity() {
                     setOnClickListener {
                         goTo(LatLng(hit.lat, hit.lng), hit.name)
                         bind.results.visibility = LinearLayout.GONE
+                        bind.search.setText(hit.name)
+                        hideKeyboard()
                     }
                 }
                 bind.results.addView(row)
@@ -267,15 +281,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goTo(p: LatLng, name: String) {
-        engine.pin(p, name)
         engine.waypoints.clear()
         engine.waypoints.add(engine.pos())
         engine.waypoints.add(p)
+        engine.teleport(p, name)
         bind.map.controller.animateTo(GeoPoint(p.lat, p.lng), 16.0, 400L)
         marker?.position = GeoPoint(p.lat, p.lng)
         marker?.title = name
         bind.map.invalidate()
         updateHud()
+        paintGo()
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(InputMethodManager::class.java)
+        imm.hideSoftInputFromWindow(bind.search.windowToken, 0)
     }
 
     private fun paintGo() {
@@ -328,8 +348,26 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         ui.removeCallbacks(tick)
+        ui.removeCallbacks(searchDebounce)
         super.onDestroy()
     }
 }
 
 private fun SystemClockElapsed() = android.os.SystemClock.elapsedRealtime()
+
+/** Esri World Street Map — no API key. Uses z/y/x, not OSM z/x/y. */
+private class EsriStreetTiles : OnlineTileSourceBase(
+    "EsriStreet",
+    1,
+    19,
+    256,
+    "",
+    arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/"),
+) {
+    override fun getTileURLString(index: Long): String {
+        val z = MapTileIndex.getZoom(index)
+        val x = MapTileIndex.getX(index)
+        val y = MapTileIndex.getY(index)
+        return "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/$z/$y/$x"
+    }
+}

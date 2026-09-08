@@ -18,7 +18,7 @@ data class RoutePoint(val lat: Double, val lng: Double, val distFromStart: Doubl
 data class RouteResult(val ok: Boolean, val path: List<LatLng>, val distanceM: Double)
 
 private const val EARTH_M = 6_371_000.0
-private const val UA = "TST-Go/1.0 (Android location simulator)"
+private const val UA = "TST-Go/1.0 (https://github.com/ThatSimpleTech/TST-Go)"
 
 fun toRad(d: Double) = d * Math.PI / 180.0
 fun toDeg(r: Double) = r * 180.0 / Math.PI
@@ -102,14 +102,55 @@ fun parseCoords(input: String): LatLng? {
 
 private fun httpGet(url: String): String {
     val conn = (URL(url).openConnection() as HttpURLConnection)
-    conn.connectTimeout = 10000
-    conn.readTimeout = 10000
+    conn.connectTimeout = 12000
+    conn.readTimeout = 12000
+    conn.instanceFollowRedirects = true
     conn.setRequestProperty("User-Agent", UA)
     conn.setRequestProperty("Accept", "application/json")
-    conn.inputStream.bufferedReader().use { return it.readText() }
+    conn.setRequestProperty("Accept-Language", "en")
+    val code = conn.responseCode
+    val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+    val body = stream?.bufferedReader()?.use { it.readText() } ?: ""
+    if (code !in 200..299) throw RuntimeException("HTTP $code")
+    return body
 }
 
 fun searchPlaces(q: String): List<PlaceHit> {
+    val photon = try {
+        searchPhoton(q)
+    } catch (_: Exception) {
+        emptyList()
+    }
+    if (photon.isNotEmpty()) return photon
+    return searchNominatim(q)
+}
+
+private fun searchPhoton(q: String): List<PlaceHit> {
+    val url = "https://photon.komoot.io/api/?limit=7&q=" + URLEncoder.encode(q, "UTF-8")
+    val feats = JSONObject(httpGet(url)).optJSONArray("features") ?: return emptyList()
+    val out = ArrayList<PlaceHit>(feats.length())
+    for (i in 0 until feats.length()) {
+        val f = feats.getJSONObject(i)
+        val props = f.optJSONObject("properties") ?: continue
+        val geom = f.optJSONObject("geometry") ?: continue
+        val coords = geom.optJSONArray("coordinates") ?: continue
+        if (coords.length() < 2) continue
+        val name = props.optString("name").ifBlank {
+            props.optString("street").ifBlank { "Place" }
+        }
+        val bits = listOf(
+            props.optString("housenumber"),
+            props.optString("street"),
+            props.optString("city").ifBlank { props.optString("locality") },
+            props.optString("state"),
+            props.optString("country"),
+        ).filter { it.isNotBlank() && it != name }
+        out.add(PlaceHit(name, bits.take(3).joinToString(", "), coords.getDouble(1), coords.getDouble(0)))
+    }
+    return out
+}
+
+private fun searchNominatim(q: String): List<PlaceHit> {
     val url =
         "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&q=" +
             URLEncoder.encode(q, "UTF-8")

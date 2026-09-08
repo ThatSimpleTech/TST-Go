@@ -83,13 +83,19 @@ class SimEngine {
     }
 
     fun tick(dtMs: Long) {
+        val mag = kotlin.math.hypot(stickX.toDouble(), stickY.toDouble()).coerceAtMost(1.0)
         if (!running || paused) {
-            speedKmh = 0.0
-            return
+            if (!paused && mag > 0.08) {
+                running = true
+                paused = false
+                if (sim == null) sim = pick
+            } else {
+                speedKmh = 0.0
+                return
+            }
         }
         val dt = dtMs / 1000.0
         val here = sim ?: pick
-        val mag = kotlin.math.hypot(stickX.toDouble(), stickY.toDouble()).coerceAtMost(1.0)
         if (mag > 0.08) {
             val h = (kotlin.math.atan2(stickX.toDouble(), stickY.toDouble()) * 180.0 / Math.PI)
             val kmh = profileSpeed() * mag
