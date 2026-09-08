@@ -191,9 +191,11 @@
                     android:textSize="13sp" />
 
                 <TextView
+                    android:id="@+id/broadcastStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/broadcast_help"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/broadcast_off"
                     android:textColor="@color/subtle"
                     android:textSize="11sp" />
             </LinearLayout>

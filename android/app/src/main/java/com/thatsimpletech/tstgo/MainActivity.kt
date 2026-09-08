@@ -3,11 +3,15 @@ package com.thatsimpletech.tstgo
 import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.inputmethod.EditorInfo
@@ -60,12 +64,8 @@ class MainActivity : AppCompatActivity() {
             }
             if (bind.broadcastSwitch.isChecked) {
                 MockBus.push(this@MainActivity, p.lat, p.lng, engine.heading, engine.speedKmh)
-                MockBus.lastError?.let {
-                    bind.broadcastSwitch.isChecked = false
-                    Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
-                    MockLocationService.stop(this@MainActivity)
-                }
             }
+            paintBroadcast()
             paintGo()
             ui.postDelayed(this, 50)
         }
@@ -143,20 +143,25 @@ class MainActivity : AppCompatActivity() {
             engine.stickY = y
         }
 
+        bind.broadcastRow.setOnClickListener { MockBus.openDeveloperSettings(this) }
         bind.broadcastSwitch.setOnCheckedChangeListener { _, on ->
             if (on) {
+                askPerms()
+                askIgnoreBattery()
+                if (!MockBus.isSelectedMockApp(this)) {
+                    Toast.makeText(this, R.string.need_mock_app, Toast.LENGTH_LONG).show()
+                    MockBus.openDeveloperSettings(this)
+                }
                 MockLocationService.start(this)
                 val p = engine.pos()
                 ui.postDelayed({
                     MockBus.push(this, p.lat, p.lng, engine.heading, engine.speedKmh)
-                    MockBus.lastError?.let { err ->
-                        bind.broadcastSwitch.isChecked = false
-                        Toast.makeText(this, err, Toast.LENGTH_LONG).show()
-                    }
-                }, 400)
+                    paintBroadcast()
+                }, 500)
             } else {
                 MockLocationService.stop(this)
             }
+            paintBroadcast()
         }
 
         lastTick = android.os.SystemClock.elapsedRealtime()
@@ -298,6 +303,43 @@ class MainActivity : AppCompatActivity() {
         imm.hideSoftInputFromWindow(bind.search.windowToken, 0)
     }
 
+    private fun paintBroadcast() {
+        val on = bind.broadcastSwitch.isChecked
+        val selected = MockBus.isSelectedMockApp(this)
+        val muted = ContextCompat.getColor(this, R.color.subtle)
+        val live = ContextCompat.getColor(this, R.color.live)
+        val stop = ContextCompat.getColor(this, R.color.stop)
+        when {
+            !on -> {
+                bind.broadcastStatus.text = getString(R.string.broadcast_off)
+                bind.broadcastStatus.setTextColor(muted)
+            }
+            !selected -> {
+                bind.broadcastStatus.text = getString(R.string.broadcast_wait)
+                bind.broadcastStatus.setTextColor(stop)
+            }
+            MockBus.lastError != null && !MockBus.lastOk -> {
+                bind.broadcastStatus.text = MockBus.lastError
+                bind.broadcastStatus.setTextColor(stop)
+            }
+            else -> {
+                bind.broadcastStatus.text = getString(R.string.broadcast_live)
+                bind.broadcastStatus.setTextColor(live)
+            }
+        }
+    }
+
+    private fun askIgnoreBattery() {
+        try {
+            val pm = getSystemService(PowerManager::class.java) ?: return
+            if (pm.isIgnoringBatteryOptimizations(packageName)) return
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+            intent.data = Uri.parse("package:$packageName")
+            startActivity(intent)
+        } catch (_: Exception) {
+        }
+    }
+
     private fun paintGo() {
         if (engine.running) {
             bind.goBtn.setBackgroundResource(R.drawable.bg_stop)
@@ -339,6 +381,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         bind.map.onResume()
+        paintBroadcast()
     }
 
     override fun onPause() {
