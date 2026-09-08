@@ -39,6 +39,7 @@ import org.osmdroid.views.overlay.Polyline
 class MainActivity : AppCompatActivity() {
     private lateinit var bind: ActivityMainBinding
     private val engine = SimEngine()
+    private lateinit var favs: FavoritesStore
     private val ui = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(Dispatchers.Main + Job())
     private var marker: Marker? = null
@@ -73,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         bind = ActivityMainBinding.inflate(layoutInflater)
         setContentView(bind.root)
+        favs = FavoritesStore(this)
         askPerms()
 
         bind.map.setTileSource(EsriStreetTiles())
@@ -122,12 +124,14 @@ class MainActivity : AppCompatActivity() {
             hideKeyboard()
         }
 
-        bind.hud.setOnClickListener {
+        bind.hudCoords.setOnClickListener {
             val text = formatPair(engine.pos())
             getSystemService(ClipboardManager::class.java)
                 .setPrimaryClip(ClipData.newPlainText("gps", text))
             Toast.makeText(this, R.string.copied, Toast.LENGTH_SHORT).show()
         }
+        bind.saveBtn.setOnClickListener { toggleSave() }
+        bind.placesBtn.setOnClickListener { showPlaces() }
 
         bind.modeJump.setOnClickListener { setMode(TravelMode.JUMP) }
         bind.modeWalk.setOnClickListener { setMode(TravelMode.WALK) }
@@ -154,6 +158,81 @@ class MainActivity : AppCompatActivity() {
         MockBus.setFix(start.lat, start.lng, engine.heading, engine.speedKmh)
         bind.broadcastSwitch.isChecked = true
         paintBroadcast()
+        paintSave()
+    }
+
+    private fun toggleSave() {
+        val p = engine.pos()
+        val nowSaved = favs.toggle(engine.label, p.lat, p.lng)
+        Toast.makeText(
+            this,
+            if (nowSaved) R.string.saved_toast else R.string.removed_toast,
+            Toast.LENGTH_SHORT,
+        ).show()
+        paintSave()
+        if (bind.resultsScroll.visibility == android.view.View.VISIBLE && showingPlaces) {
+            showPlaces()
+        }
+    }
+
+    private var showingPlaces = false
+
+    private fun showPlaces() {
+        showingPlaces = true
+        bind.results.removeAllViews()
+        val all = favs.all()
+        bind.resultsScroll.visibility = android.view.View.VISIBLE
+        bind.results.visibility = LinearLayout.VISIBLE
+        if (all.isEmpty()) {
+            val empty = TextView(this).apply {
+                text = getString(R.string.no_favorites)
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.muted))
+                textSize = 13f
+                setPadding(16, 16, 16, 16)
+            }
+            bind.results.addView(empty)
+            return
+        }
+        for (place in all) {
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(8, 4, 8, 4)
+            }
+            val label = TextView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                text = "${place.name}\n${"%.5f".format(place.lat)}, ${"%.5f".format(place.lng)}"
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.fg))
+                textSize = 14f
+                setPadding(8, 12, 8, 12)
+                setOnClickListener {
+                    goTo(LatLng(place.lat, place.lng), place.name)
+                    hideResults()
+                }
+            }
+            val remove = TextView(this).apply {
+                text = getString(R.string.remove)
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.stop))
+                textSize = 12f
+                setPadding(12, 12, 12, 12)
+                setOnClickListener {
+                    favs.remove(place.id)
+                    paintSave()
+                    showPlaces()
+                }
+            }
+            row.addView(label)
+            row.addView(remove)
+            bind.results.addView(row)
+        }
+    }
+
+    private fun paintSave() {
+        val p = engine.pos()
+        val saved = favs.nearby(p.lat, p.lng) != null
+        bind.saveBtn.text = getString(if (saved) R.string.saved_pin else R.string.save_pin)
+        bind.saveBtn.setBackgroundResource(if (saved) R.drawable.bg_mode_on else R.drawable.bg_mode)
+        bind.placesBtn.text = if (favs.all().isEmpty()) getString(R.string.places) else "Places (${favs.all().size})"
     }
 
     private fun startBroadcast() {
@@ -284,6 +363,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun hideResults() {
+        showingPlaces = false
         bind.results.removeAllViews()
         bind.results.visibility = LinearLayout.GONE
         bind.resultsScroll.visibility = android.view.View.GONE
@@ -370,6 +450,7 @@ class MainActivity : AppCompatActivity() {
             else -> getString(R.string.idle_pin)
         }
         bind.hudMeta.text = "${headingLabel(engine.heading)}  ·  ${"%.1f".format(engine.speedKmh)} km/h"
+        paintSave()
     }
 
     private fun askPerms() {

@@ -1,8 +1,8 @@
-import { Copy, ExternalLink, Navigation, Satellite } from "lucide-react";
+import { Copy, ExternalLink, Navigation, Satellite, Star } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { googleMapsUrl, positionJson, shareQuery } from "@/lib/geo/export";
-import { formatDistance, formatHeading, formatPair, formatSpeed } from "@/lib/geo/math";
+import { formatDistance, formatHeading, formatPair, formatSpeed, haversine } from "@/lib/geo/math";
 import { useFlashGo } from "@/lib/geo/store";
 
 export function Hud() {
@@ -12,9 +12,12 @@ export function Hud() {
   const paused = useFlashGo((s) => s.paused);
   const routeTotal = useFlashGo((s) => s.routeTotal);
   const routeTraveled = useFlashGo((s) => s.routeTraveled);
+  const favorites = useFlashGo((s) => s.favorites);
+  const starCurrent = useFlashGo((s) => s.starCurrent);
   const pos = sim ?? pick;
   const speed = sim && running && !paused ? sim.speedKmh : 0;
   const heading = sim?.heading ?? 0;
+  const starred = favorites.some((f) => haversine(f, pos) < 25);
 
   function copy() {
     void navigator.clipboard.writeText(formatPair(pos));
@@ -48,6 +51,19 @@ export function Hud() {
           {running ? (paused ? "Paused" : "Live signal") : "Idle pin"}
         </div>
         <div className="flex">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => {
+              const nowOn = starCurrent();
+              toast.success(nowOn ? "Saved to favorites" : "Removed from favorites");
+            }}
+            aria-label={starred ? "Remove favorite" : "Save favorite"}
+            title={starred ? "Remove favorite" : "Save favorite"}
+          >
+            <Star className={`size-3.5 ${starred ? "fill-current text-live" : ""}`} />
+          </Button>
           <Button type="button" variant="ghost" size="icon-sm" onClick={copy} aria-label="Copy coordinates">
             <Copy className="size-3.5" />
           </Button>

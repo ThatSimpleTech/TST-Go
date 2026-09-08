@@ -19,4 +19,11 @@
     <string name="broadcast_live">Live — your phone GPS is this pin</string>
     <string name="need_mock_app">Pick TST Go as the mock location app, then return. Android forgets this after every install.</string>
     <string name="copied">Coordinates copied</string>
+    <string name="save_pin">Save</string>
+    <string name="saved_pin">Saved</string>
+    <string name="places">Places</string>
+    <string name="saved_toast">Saved to favorites</string>
+    <string name="removed_toast">Removed from favorites</string>
+    <string name="no_favorites">No saved places yet. Jump somewhere, then tap Save.</string>
+    <string name="remove">Remove</string>
 </resources>

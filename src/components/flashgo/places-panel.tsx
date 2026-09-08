@@ -57,7 +57,15 @@ export function PlacesPanel({ onClose }: { onClose?: () => void }) {
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-center justify-between px-1 pb-3">
         <h2 className="font-display text-base font-medium tracking-tight">Signal & route</h2>
-        <Button type="button" variant="secondary" size="sm" onClick={starCurrent}>
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={() => {
+            const nowOn = starCurrent();
+            toast.success(nowOn ? "Saved to favorites" : "Removed from favorites");
+          }}
+        >
           <Star className="size-3.5" />
           Save pin
         </Button>

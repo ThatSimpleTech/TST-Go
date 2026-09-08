@@ -81,7 +81,7 @@ type FlashGoState = {
   stop: () => void;
   tick: (dtMs: number) => void;
   teleportTo: (p: LatLng, label: string) => void;
-  starCurrent: () => void;
+  starCurrent: () => boolean;
   unstar: (id: string) => void;
   remember: (p: LatLng, name: string) => void;
   dismissOnboard: () => void;
@@ -276,13 +276,18 @@ export const useFlashGo = create<FlashGoState>()(
         const s = get();
         const src = s.sim ?? s.pick;
         const name = s.pick.label || formatPair(src, 4);
-        if (s.favorites.some((f) => haversine(f, src) < 25)) return;
+        const existing = s.favorites.find((f) => haversine(f, src) < 25);
+        if (existing) {
+          set({ favorites: s.favorites.filter((f) => f.id !== existing.id) });
+          return false;
+        }
         set({
           favorites: trimList(
             [{ id: uid(), name, lat: src.lat, lng: src.lng, savedAt: Date.now() }, ...s.favorites],
             50,
           ),
         });
+        return true;
       },
       unstar: (id) => set((s) => ({ favorites: s.favorites.filter((f) => f.id !== id) })),
       remember: (p, name) =>
