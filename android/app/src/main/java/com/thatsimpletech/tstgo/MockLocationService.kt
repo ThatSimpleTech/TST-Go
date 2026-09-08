@@ -4,6 +4,7 @@ import android.app.AppOpsManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -13,6 +14,8 @@ import android.location.LocationManager
 import android.location.LocationProvider
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Process
 import android.os.SystemClock
@@ -20,43 +23,72 @@ import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.Tasks
+import java.util.concurrent.TimeUnit
 
 class MockLocationService : Service() {
+    private var thread: HandlerThread? = null
+    private var handler: Handler? = null
+
+    private val pulse = object : Runnable {
+        override fun run() {
+            MockBus.inject(this@MockLocationService)
+            handler?.postDelayed(this, 400)
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(
-            NotificationChannel(CHANNEL, "TST Go signal", NotificationManager.IMPORTANCE_LOW),
+            NotificationChannel(CHANNEL, "TST Go GPS", NotificationManager.IMPORTANCE_LOW),
         )
         try {
-            startForeground(1, notice("Broadcasting simulated GPS"))
+            startForeground(1, notice())
         } catch (_: Exception) {
-            // still inject; some OEMs reject the notification icon
         }
         MockBus.running = true
-        MockBus.prepareFused(this)
+        MockBus.prepare(this)
+        val t = HandlerThread("tstgo-gps").also { it.start(); thread = it }
+        handler = Handler(t.looper).also { it.post(pulse) }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         MockBus.running = true
+        try {
+            startForeground(1, notice())
+        } catch (_: Exception) {
+        }
         return START_STICKY
     }
 
     override fun onDestroy() {
+        handler?.removeCallbacks(pulse)
+        thread?.quitSafely()
+        handler = null
+        thread = null
         MockBus.running = false
         MockBus.teardown(this)
         super.onDestroy()
     }
 
-    private fun notice(text: String): Notification =
-        NotificationCompat.Builder(this, CHANNEL)
-            .setContentTitle("TST Go")
-            .setContentText(text)
-            .setSmallIcon(R.mipmap.ic_launcher)
+    private fun notice(): Notification {
+        val launch = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        return NotificationCompat.Builder(this, CHANNEL)
+            .setContentTitle("TST Go is changing your GPS")
+            .setContentText("Maps and other apps should follow this pin. Tap to open.")
+            .setSmallIcon(R.drawable.ic_stat_gps)
+            .setContentIntent(launch)
             .setOngoing(true)
             .build()
+    }
 
     companion object {
         private const val CHANNEL = "tstgo_mock"
@@ -73,8 +105,20 @@ object MockBus {
     @Volatile var running = false
     @Volatile var lastError: String? = null
     @Volatile var lastOk = false
+    @Volatile var lat = 40.758
+    @Volatile var lng = -73.9855
+    @Volatile var heading = 0.0
+    @Volatile var speedKmh = 0.0
+
     private var fused: FusedLocationProviderClient? = null
-    private var fusedMockOn = false
+    private var fusedReady = false
+
+    fun setFix(lat: Double, lng: Double, heading: Double, speedKmh: Double) {
+        this.lat = lat
+        this.lng = lng
+        this.heading = heading
+        this.speedKmh = speedKmh
+    }
 
     fun isSelectedMockApp(ctx: Context): Boolean {
         return try {
@@ -100,20 +144,21 @@ object MockBus {
         }
     }
 
-    fun prepareFused(ctx: Context) {
+    fun prepare(ctx: Context) {
         try {
             fused = LocationServices.getFusedLocationProviderClient(ctx.applicationContext)
-            fusedMockOn = false
+            fusedReady = false
         } catch (_: Exception) {
             fused = null
         }
     }
 
-    fun push(ctx: Context, lat: Double, lng: Double, heading: Double, speedKmh: Double) {
+    fun inject(ctx: Context) {
         if (!running) return
         if (!isSelectedMockApp(ctx)) {
             lastOk = false
-            lastError = "Select mock location app → TST Go (do this again after each install)."
+            lastError = "Select mock location app → TST Go (again after each install)."
+            fusedReady = false
             return
         }
         val lm = ctx.getSystemService(LocationManager::class.java) ?: return
@@ -125,36 +170,28 @@ object MockBus {
                 lm.setTestProviderLocation(name, buildLoc(name, lat, lng, heading, speedKmh))
                 ok++
             } catch (e: SecurityException) {
-                err = "Select mock location app → TST Go (do this again after each install)."
+                err = "Select mock location app → TST Go (again after each install)."
             } catch (e: Exception) {
                 if (err == null) err = e.message
             }
         }
         try {
             val client = fused ?: LocationServices.getFusedLocationProviderClient(ctx).also { fused = it }
-            val loc = buildLoc("fused", lat, lng, heading, speedKmh)
-            if (!fusedMockOn) {
-                client.setMockMode(true)
-                    .addOnSuccessListener { fusedMockOn = true }
-                    .addOnFailureListener { e ->
-                        if (lastError == null) lastError = e.message
-                    }
+            if (!fusedReady) {
+                Tasks.await(client.setMockMode(true), 3, TimeUnit.SECONDS)
+                fusedReady = true
             }
-            client.setMockLocation(loc)
-                .addOnSuccessListener {
-                    lastOk = true
-                    lastError = null
-                }
-                .addOnFailureListener { e ->
-                    if (ok == 0) {
-                        lastError = e.message ?: "Google location mock failed"
-                        lastOk = false
-                    }
-                }
+            Tasks.await(
+                client.setMockLocation(buildLoc("fused", lat, lng, heading, speedKmh)),
+                2,
+                TimeUnit.SECONDS,
+            )
             ok++
         } catch (e: SecurityException) {
-            err = "Select mock location app → TST Go (do this again after each install)."
+            fusedReady = false
+            err = "Select mock location app → TST Go (again after each install)."
         } catch (e: Exception) {
+            fusedReady = false
             if (err == null) err = e.message
         }
         if (ok > 0) {
@@ -172,7 +209,7 @@ object MockBus {
         } catch (_: Exception) {
         }
         fused = null
-        fusedMockOn = false
+        fusedReady = false
         val lm = ctx.getSystemService(LocationManager::class.java) ?: return
         for (name in providers()) {
             try {
@@ -200,7 +237,6 @@ object MockBus {
                     Criteria.ACCURACY_FINE,
                 )
             } catch (_: IllegalArgumentException) {
-                // already present
             }
             lm.setTestProviderEnabled(name, true)
             try {
@@ -213,8 +249,6 @@ object MockBus {
             } catch (_: Exception) {
             }
             true
-        } catch (_: SecurityException) {
-            false
         } catch (_: Exception) {
             false
         }
@@ -231,22 +265,22 @@ object MockBus {
         val loc = Location(provider)
         loc.latitude = lat
         loc.longitude = lng
-        loc.accuracy = 3f
-        loc.altitude = 12.0
+        loc.accuracy = 3.2f
+        loc.altitude = 18.0
         loc.bearing = heading.toFloat()
-        loc.speed = (speedKmh.coerceAtLeast(0.1) * 1000.0 / 3600.0).toFloat()
+        loc.speed = (speedKmh.coerceAtLeast(0.05) * 1000.0 / 3600.0).toFloat()
         loc.time = System.currentTimeMillis()
         loc.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            loc.bearingAccuracyDegrees = 0.5f
-            loc.speedAccuracyMetersPerSecond = 0.2f
+            loc.bearingAccuracyDegrees = 0.8f
+            loc.speedAccuracyMetersPerSecond = 0.25f
             loc.verticalAccuracyMeters = 2f
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             loc.isMock = true
         }
         loc.extras = Bundle().apply {
-            putInt("satellites", 12)
+            putInt("satellites", 14)
             putBoolean("mockLocation", true)
         }
         return loc
@@ -258,9 +292,7 @@ object MockBus {
             LocationManager.NETWORK_PROVIDER,
             "fused",
         )
-        if (Build.VERSION.SDK_INT >= 31) {
-            list.add(LocationManager.FUSED_PROVIDER)
-        }
+        if (Build.VERSION.SDK_INT >= 31) list.add(LocationManager.FUSED_PROVIDER)
         return list.distinct().toTypedArray()
     }
 }

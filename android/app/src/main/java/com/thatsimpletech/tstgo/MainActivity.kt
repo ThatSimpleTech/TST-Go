@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
             engine.tick(now - lastTick)
             lastTick = now
             val p = engine.pos()
+            MockBus.setFix(p.lat, p.lng, engine.heading, engine.speedKmh)
             updateHud()
             marker?.position = GeoPoint(p.lat, p.lng)
             marker?.rotation = (-engine.heading).toFloat()
@@ -61,9 +62,6 @@ class MainActivity : AppCompatActivity() {
                 if (stick > 0.08 || engine.speedKmh > 0.4) {
                     bind.map.controller.animateTo(GeoPoint(p.lat, p.lng))
                 }
-            }
-            if (bind.broadcastSwitch.isChecked) {
-                MockBus.push(this@MainActivity, p.lat, p.lng, engine.heading, engine.speedKmh)
             }
             paintBroadcast()
             paintGo()
@@ -145,28 +143,27 @@ class MainActivity : AppCompatActivity() {
 
         bind.broadcastRow.setOnClickListener { MockBus.openDeveloperSettings(this) }
         bind.broadcastSwitch.setOnCheckedChangeListener { _, on ->
-            if (on) {
-                askPerms()
-                askIgnoreBattery()
-                if (!MockBus.isSelectedMockApp(this)) {
-                    Toast.makeText(this, R.string.need_mock_app, Toast.LENGTH_LONG).show()
-                    MockBus.openDeveloperSettings(this)
-                }
-                MockLocationService.start(this)
-                val p = engine.pos()
-                ui.postDelayed({
-                    MockBus.push(this, p.lat, p.lng, engine.heading, engine.speedKmh)
-                    paintBroadcast()
-                }, 500)
-            } else {
-                MockLocationService.stop(this)
-            }
+            if (on) startBroadcast() else MockLocationService.stop(this)
             paintBroadcast()
         }
 
         lastTick = android.os.SystemClock.elapsedRealtime()
         ui.post(tick)
         updateHud()
+        val start = engine.pos()
+        MockBus.setFix(start.lat, start.lng, engine.heading, engine.speedKmh)
+        bind.broadcastSwitch.isChecked = true
+        paintBroadcast()
+    }
+
+    private fun startBroadcast() {
+        askPerms()
+        askIgnoreBattery()
+        if (!MockBus.isSelectedMockApp(this)) {
+            Toast.makeText(this, R.string.need_mock_app, Toast.LENGTH_LONG).show()
+            MockBus.openDeveloperSettings(this)
+        }
+        MockLocationService.start(this)
     }
 
     private fun setMode(mode: TravelMode) {
@@ -290,6 +287,9 @@ class MainActivity : AppCompatActivity() {
         engine.waypoints.add(engine.pos())
         engine.waypoints.add(p)
         engine.teleport(p, name)
+        MockBus.setFix(p.lat, p.lng, engine.heading, engine.speedKmh)
+        if (!MockBus.running) startBroadcast()
+        bind.broadcastSwitch.isChecked = true
         bind.map.controller.animateTo(GeoPoint(p.lat, p.lng), 16.0, 400L)
         marker?.position = GeoPoint(p.lat, p.lng)
         marker?.title = name

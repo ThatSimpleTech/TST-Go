@@ -15,8 +15,8 @@
     <string name="broadcast">Broadcast to other apps</string>
     <string name="broadcast_help">Tap here to open Developer options. Select mock location app → TST Go (again after every install). Then turn Broadcast on.</string>
     <string name="broadcast_off">Off — other apps still see real GPS</string>
-    <string name="broadcast_wait">Waiting for mock location app = TST Go</string>
-    <string name="broadcast_live">Broadcasting simulated GPS</string>
-    <string name="need_mock_app">Select TST Go as the mock location app in Developer options first.</string>
+    <string name="broadcast_wait">Waiting: Developer options → Select mock location app → TST Go</string>
+    <string name="broadcast_live">Live — your phone GPS is this pin</string>
+    <string name="need_mock_app">Pick TST Go as the mock location app, then return. Android forgets this after every install.</string>
     <string name="copied">Coordinates copied</string>
 </resources>
