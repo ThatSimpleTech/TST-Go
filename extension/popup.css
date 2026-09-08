@@ -1,0 +1,79 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, system-ui, sans-serif;
+}
+html,
+body {
+  margin: 0;
+  width: 320px;
+  background: #0b0c0e;
+  color: #f2f3f5;
+}
+body {
+  padding: 14px;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #9aa0a8;
+}
+#status,
+#label,
+.hint {
+  color: #9aa0a8;
+  font-size: 12px;
+  line-height: 1.4;
+}
+#coords {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  margin: 8px 0 4px;
+}
+form {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0;
+}
+input {
+  flex: 1;
+  border: 0;
+  border-radius: 10px;
+  background: #1c1f24;
+  color: #f2f3f5;
+  padding: 8px 10px;
+}
+button {
+  border: 0;
+  border-radius: 10px;
+  background: #5ea37a;
+  color: #07140c;
+  font-weight: 700;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+#hits button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #14161a;
+  color: #f2f3f5;
+  margin-top: 6px;
+  font-weight: 500;
+}
+.hint {
+  margin-top: 12px;
+}
+.live {
+  color: #5ea37a;
+}
+.off {
+  color: #c45c5c;
+}

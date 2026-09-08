@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>TST Go</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <strong>TST Go</strong>
+      <label class="toggle">
+        <input id="enabled" type="checkbox" />
+        <span>Spoof GPS</span>
+      </label>
+    </header>
+    <p id="status">Install loaded. Open TST Go and move the pin.</p>
+    <p id="coords">—</p>
+    <p id="label"></p>
+    <form id="searchForm">
+      <input id="query" type="search" placeholder="City, address, or lat, lng" />
+      <button type="submit">Go</button>
+    </form>
+    <div id="hits"></div>
+    <p class="hint">
+      Mac, Windows, and Linux: this changes GPS for websites in this browser
+      (Maps, weather, store locators). Native apps still use the real OS location.
+      Android phones should use the APK instead.
+    </p>
+    <script src="popup.js"></script>
+  </body>
+</html>

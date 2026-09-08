@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, Share, Smartphone, X } from "lucide-react";
+import { Download, Monitor, Share, Smartphone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { APP_NAME } from "@/lib/brand";
 
@@ -154,7 +154,7 @@ function InstallSheet({ onClose }: { onClose: () => void }) {
           <div>
             <p className="text-xs font-medium tracking-wide text-subtle uppercase">{APP_NAME}</p>
             <h2 className="font-display mt-1 text-xl font-medium tracking-tight">
-              {isAndroid() ? "Install the Android app" : "Install on this device"}
+              {isAndroid() ? "Install the Android app" : "Install TST Go"}
             </h2>
           </div>
           <Button type="button" variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close">
@@ -162,8 +162,7 @@ function InstallSheet({ onClose }: { onClose: () => void }) {
           </Button>
         </div>
         <p className="mt-2 text-sm text-muted">
-          Android gets a real APK. iPhone and computers can add TST Go to the home
-          screen from the browser.
+          Android can change GPS for other apps. Mac, Windows, and Linux can change GPS for websites in Chrome or Edge. Native desktop apps still use real location.
         </p>
         <ul className="mt-4 space-y-3">
           <li className="flex gap-3">
@@ -172,8 +171,16 @@ function InstallSheet({ onClose }: { onClose: () => void }) {
             </span>
             <span className="text-sm text-muted">
               <span className="block font-medium text-fg">Android APK</span>
-              Download the installer, allow unknown apps if asked, then open TST Go.
-              To feed GPS to other apps: Developer options → Select mock location app → TST Go.
+              Sideload the installer. Developer options → Select mock location app → TST Go. Broadcast stays on.
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-surface-2">
+              <Monitor className="size-4" />
+            </span>
+            <span className="text-sm text-muted">
+              <span className="block font-medium text-fg">Mac, Windows, Linux</span>
+              Load the browser extension (Developer mode → Load unpacked). Open TST Go, move the pin, then open Maps in another tab.
             </span>
           </li>
           <li className="flex gap-3">
@@ -181,8 +188,8 @@ function InstallSheet({ onClose }: { onClose: () => void }) {
               <Share className="size-4" />
             </span>
             <span className="text-sm text-muted">
-              <span className="block font-medium text-fg">iPhone / computer</span>
-              iPhone: Share, then Add to Home Screen. Chrome or Edge: Install app from the menu.
+              <span className="block font-medium text-fg">iPhone / iPad</span>
+              Share → Add to Home Screen. iOS will not let a web app fake GPS for other apps.
             </span>
           </li>
         </ul>
@@ -191,6 +198,12 @@ function InstallSheet({ onClose }: { onClose: () => void }) {
             <a href="/tst-go.apk" download="TST-Go.apk">
               <Download className="size-4" />
               Download Android APK
+            </a>
+          </Button>
+          <Button asChild variant="secondary" className="h-12 w-full rounded-2xl">
+            <a href="/tst-go-extension.zip" download="TST-Go-extension.zip">
+              <Monitor className="size-4" />
+              Download desktop extension
             </a>
           </Button>
           {prompt ? (

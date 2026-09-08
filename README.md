@@ -6,7 +6,9 @@ TST Go lets you jump anywhere on the map, walk, cycle, or drive a real route, an
 
 On **Android** you can install a real APK. That app can also **broadcast** the simulated location to other apps after you pick TST Go as the mock location app in Developer options.
 
-A **browser** cannot inject GPS into other native apps. The web version simulates location inside TST Go and gives you coordinates, map links, and GPX to take elsewhere.
+On **Mac, Windows, and Linux**, install the **browser extension**. It spoofs GPS for websites in Chrome, Edge, Brave, Arc, or Firefox (Google Maps in a tab, store locators, weather). Native desktop apps (Find My, system Maps, most games) still use the real OS location — those platforms do not allow a regular app to replace system GPS.
+
+A **browser tab without the extension** cannot inject GPS into other apps. The web version still simulates location inside TST Go and gives you coordinates, map links, and GPX.
 
 ---
 
@@ -30,7 +32,19 @@ Requires Android 8 or newer. Not listed on the Play Store; sideload only.
 2. **iPhone / iPad:** tap Share, then **Add to Home Screen**.
 3. **Android (no APK):** tap the browser menu, then **Install app** / **Add to Home Screen**. This does **not** spoof GPS for other apps.
 
-### Computer
+### Computer (Mac, Windows, Linux)
+
+**Change GPS for websites** (recommended):
+
+1. Download **[TST-Go-extension.zip](https://github.com/ThatSimpleTech/TST-Go/raw/main/public/tst-go-extension.zip)**.
+2. Unzip it.
+3. **Chrome / Edge / Brave / Arc:** open `chrome://extensions` (or `edge://extensions`), turn on **Developer mode**, click **Load unpacked**, pick the unzipped folder (the one with `manifest.json`).
+4. **Firefox:** `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on** → select `manifest.json`.
+5. Open TST Go in a tab, move the pin. Open Maps (or any site that asks for location) in another tab — it should follow the pin. The extension popup also has search.
+
+The extension cannot spoof native OS apps. That is an OS limit, not a TST Go setting.
+
+**Install the map as a desktop app:**
 
 1. Open TST Go in **Chrome** or **Edge**.
 2. Open the browser menu (or the install icon in the address bar).
@@ -75,6 +89,7 @@ You can also use GitHub → **Code** → **Download ZIP** if you do not use git.
 - **Streets or satellite** map (web)
 - Save **favorite pins** on this device (web)
 - **Broadcast to other apps** (Android APK, mock location)
+- **Spoof GPS in Chrome/Edge/Firefox** (Mac / Windows / Linux extension)
 
 Favorites and history stay on this device. There is no account.
 

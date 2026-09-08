@@ -11,6 +11,7 @@ import { Hud } from "./hud";
 import { Joystick } from "./joystick";
 import { KeyboardBridge } from "./keyboard";
 import { InstallAppButton } from "./install-app";
+import { DesktopBridge } from "./desktop-bridge";
 import { Onboard } from "./onboard";
 import { PlacesPanel } from "./places-panel";
 import { SearchBar } from "./search-bar";
@@ -81,6 +82,7 @@ export function AppShell() {
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-bg text-fg">
       <KeyboardBridge />
+      <DesktopBridge />
       {MapView ? <MapView /> : <div className="absolute inset-0 bg-bg" aria-hidden />}
 
       {!running ? (
