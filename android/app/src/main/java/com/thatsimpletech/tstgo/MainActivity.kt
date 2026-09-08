@@ -14,6 +14,7 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MotionEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
@@ -28,12 +29,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.util.MapTileIndex
-import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Overlay
 import org.osmdroid.views.overlay.Polyline
 
 class MainActivity : AppCompatActivity() {
@@ -93,15 +93,13 @@ class MainActivity : AppCompatActivity() {
         marker = pin
         bind.map.overlays.add(pin)
         bind.map.overlays.add(
-            MapEventsOverlay(
-                object : MapEventsReceiver {
-                    override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
-                        goTo(LatLng(p.latitude, p.longitude), "Dropped pin")
-                        return true
-                    }
-                    override fun longPressHelper(p: GeoPoint) = false
-                },
-            ),
+            object : Overlay() {
+                override fun onDoubleTap(e: MotionEvent, mapView: org.osmdroid.views.MapView): Boolean {
+                    val geo = mapView.projection.fromPixels(e.x.toInt(), e.y.toInt())
+                    goTo(LatLng(geo.latitude, geo.longitude), "Dropped pin")
+                    return true
+                }
+            },
         )
 
         bind.search.setOnEditorActionListener { v, action, _ ->

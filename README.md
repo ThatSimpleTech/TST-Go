@@ -84,6 +84,7 @@ You can also use GitHub → **Code** → **Download ZIP** if you do not use git.
 - **Jump** to teleport instantly
 - **Walk / cycle / drive** along a plotted road route at real-world speed
 - **Joystick** on phone, **WASD** on a keyboard (web)
+- **Double-tap** the map to jump the pin there
 - **Copy** coordinates, GPS JSON, or a share link
 - Save **favorite pins** on this device (web and Android). Tap **Save** / the star, then **Places** to jump back.
 - **Export GPX** of the route (web)

@@ -133,6 +133,11 @@ function MapEvents() {
       }
       addWaypoint({ lat: e.latlng.lat, lng: e.latlng.lng }, "Waypoint");
     },
+    dblclick(e) {
+      const p = { lat: e.latlng.lat, lng: e.latlng.lng };
+      useFlashGo.getState().teleportTo(p, "Dropped pin");
+      labelCenter(p.lat, p.lng);
+    },
   });
 
   return null;
@@ -164,6 +169,7 @@ export function MapView() {
       center={[pick.lat, pick.lng]}
       zoom={13}
       zoomControl={false}
+      doubleClickZoom={false}
       attributionControl
       className="fg-map absolute inset-0 z-0 h-full w-full"
     >
