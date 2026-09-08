@@ -158,11 +158,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun startBroadcast() {
         askPerms()
-        askIgnoreBattery()
-        if (!MockBus.isSelectedMockApp(this)) {
-            Toast.makeText(this, R.string.need_mock_app, Toast.LENGTH_LONG).show()
-            MockBus.openDeveloperSettings(this)
-        }
         MockLocationService.start(this)
     }
 
@@ -237,13 +232,12 @@ class MainActivity : AppCompatActivity() {
     private fun doSearch(q: String, quiet: Boolean) {
         val query = q.trim()
         if (query.length < 2) {
-            bind.results.removeAllViews()
-            bind.results.visibility = LinearLayout.GONE
+            hideResults()
             return
         }
         parseCoords(query)?.let {
             goTo(it, "Pinned coordinates")
-            bind.results.visibility = LinearLayout.GONE
+            hideResults()
             return
         }
         searchJob?.cancel()
@@ -257,13 +251,20 @@ class MainActivity : AppCompatActivity() {
             }
             bind.results.removeAllViews()
             if (hits.isEmpty()) {
-                bind.results.visibility = LinearLayout.GONE
+                hideResults()
                 if (!quiet) {
                     Toast.makeText(this@MainActivity, "No places match that search", Toast.LENGTH_SHORT).show()
                 }
                 return@launch
             }
-            bind.results.visibility = LinearLayout.VISIBLE
+            if (!quiet) {
+                val best = hits.first()
+                goTo(LatLng(best.lat, best.lng), best.name)
+                hideResults()
+                hideKeyboard()
+                return@launch
+            }
+            bind.resultsScroll.visibility = android.view.View.VISIBLE
             for (hit in hits) {
                 val row = TextView(this@MainActivity).apply {
                     text = "${hit.name}\n${hit.detail}"
@@ -272,7 +273,7 @@ class MainActivity : AppCompatActivity() {
                     setPadding(16, 16, 16, 16)
                     setOnClickListener {
                         goTo(LatLng(hit.lat, hit.lng), hit.name)
-                        bind.results.visibility = LinearLayout.GONE
+                        hideResults()
                         bind.search.setText(hit.name)
                         hideKeyboard()
                     }
@@ -282,12 +283,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun hideResults() {
+        bind.results.removeAllViews()
+        bind.results.visibility = LinearLayout.GONE
+        bind.resultsScroll.visibility = android.view.View.GONE
+    }
+
     private fun goTo(p: LatLng, name: String) {
         engine.waypoints.clear()
         engine.waypoints.add(engine.pos())
         engine.waypoints.add(p)
         engine.teleport(p, name)
         MockBus.setFix(p.lat, p.lng, engine.heading, engine.speedKmh)
+        hideResults()
         if (!MockBus.running) startBroadcast()
         bind.broadcastSwitch.isChecked = true
         bind.map.controller.animateTo(GeoPoint(p.lat, p.lng), 16.0, 400L)

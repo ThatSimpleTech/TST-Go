@@ -94,67 +94,73 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/results"
+            android:id="@+id/hud"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_chip"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/hudStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/idle_pin"
+                android:textAllCaps="true"
+                android:textColor="@color/subtle"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/hudCoords"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="monospace"
+                android:text="40.758000, -73.985500"
+                android:textColor="@color/fg"
+                android:textIsSelectable="true"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/hudLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="Times Square"
+                android:textColor="@color/muted"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/hudMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="monospace"
+                android:text="0° N  ·  0.0 km/h"
+                android:textColor="@color/muted"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/resultsScroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:background="@drawable/bg_chip"
-            android:orientation="vertical"
-            android:padding="6dp"
-            android:visibility="gone" />
-    </LinearLayout>
+            android:fillViewport="true"
+            android:maxHeight="200dp"
+            android:visibility="gone">
 
-    <LinearLayout
-        android:id="@+id/hud"
-        android:layout_width="220dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|top"
-        android:layout_marginTop="132dp"
-        android:layout_marginEnd="12dp"
-        android:background="@drawable/bg_chip"
-        android:orientation="vertical"
-        android:padding="12dp">
-
-        <TextView
-            android:id="@+id/hudStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/idle_pin"
-            android:textAllCaps="true"
-            android:textColor="@color/subtle"
-            android:textSize="11sp" />
-
-        <TextView
-            android:id="@+id/hudCoords"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:fontFamily="monospace"
-            android:text="40.758000, -73.985500"
-            android:textColor="@color/fg"
-            android:textIsSelectable="true"
-            android:textSize="13sp" />
-
-        <TextView
-            android:id="@+id/hudLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="Times Square"
-            android:textColor="@color/muted"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/hudMeta"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:fontFamily="monospace"
-            android:text="0° N  ·  0.0 km/h"
-            android:textColor="@color/muted"
-            android:textSize="11sp" />
+            <LinearLayout
+                android:id="@+id/results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="6dp" />
+        </ScrollView>
     </LinearLayout>
 
     <LinearLayout

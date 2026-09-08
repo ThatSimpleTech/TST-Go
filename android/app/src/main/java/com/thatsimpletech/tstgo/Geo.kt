@@ -13,7 +13,13 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 data class LatLng(val lat: Double, val lng: Double)
-data class PlaceHit(val name: String, val detail: String, val lat: Double, val lng: Double)
+data class PlaceHit(
+    val name: String,
+    val detail: String,
+    val lat: Double,
+    val lng: Double,
+    val kind: String = "",
+)
 data class RoutePoint(val lat: Double, val lng: Double, val distFromStart: Double)
 data class RouteResult(val ok: Boolean, val path: List<LatLng>, val distanceM: Double)
 
@@ -116,13 +122,74 @@ private fun httpGet(url: String): String {
 }
 
 fun searchPlaces(q: String): List<PlaceHit> {
-    val photon = try {
-        searchPhoton(q)
+    val raw = mutableListOf<PlaceHit>()
+    try {
+        raw += searchPhoton(q)
     } catch (_: Exception) {
-        emptyList()
     }
-    if (photon.isNotEmpty()) return photon
-    return searchNominatim(q)
+    try {
+        raw += searchNominatim(q)
+    } catch (_: Exception) {
+    }
+    val ranked = rankHits(q, raw)
+    if (ranked.isNotEmpty()) return ranked
+    return fallbackRegion(q)
+}
+
+private val STOP_WORDS = setOf(
+    "the", "of", "and", "al", "usa", "us", "united", "states", "street", "st",
+    "ave", "rd", "dr", "ln", "ct", "trl", "trail", "east", "west", "north", "south",
+)
+
+private fun tokens(s: String): List<String> =
+    s.lowercase()
+        .split(Regex("[^a-z0-9]+"))
+        .filter { it.length > 1 && it !in STOP_WORDS }
+
+private fun rankHits(q: String, hits: List<PlaceHit>): List<PlaceHit> {
+    val qt = tokens(q)
+    val numbered = q.any { it.isDigit() }
+    val scored = hits.map { hit ->
+        val hay = tokens("${hit.name} ${hit.detail}")
+        var score = qt.count { t -> hay.any { it == t || it.contains(t) || t.contains(it) } }
+        if (numbered && hit.kind in setOf("path", "track", "footway", "cycleway", "bridleway")) score -= 4
+        if (numbered && hit.kind in setOf("house", "yes", "residential", "building")) score += 2
+        hit to score
+    }.filter { it.second > 0 }.sortedByDescending { it.second }
+    return scored.map { it.first }.distinctBy { "${it.lat},${it.lng}" }.take(5)
+}
+
+private fun fallbackRegion(q: String): List<PlaceHit> {
+    val tries = mutableListOf<String>()
+    Regex("""([A-Za-z][A-Za-z.]*)\s*,\s*([A-Z]{2})\s*(\d{5})?""").find(q)?.let {
+        val city = it.groupValues[1].trim()
+        val state = it.groupValues[2]
+        tries += "$city, $state, USA"
+        val zip = it.groupValues[3]
+        if (zip.isNotBlank()) tries += "$zip $state USA"
+    }
+    val parts = q.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+    if (parts.size >= 2) tries += parts.last()
+    for (t in tries.distinct()) {
+        val found = mutableListOf<PlaceHit>()
+        try { found += searchNominatim(t) } catch (_: Exception) {}
+        try { found += searchPhoton(t) } catch (_: Exception) {}
+        val good = found.filter {
+            it.kind !in setOf("path", "track", "footway") &&
+                !it.detail.contains("Україна", ignoreCase = true) &&
+                !it.detail.contains("Ukraine", ignoreCase = true)
+        }
+        if (good.isNotEmpty()) {
+            return good.take(3).map {
+                it.copy(
+                    detail = listOf(it.detail, "Approximate — that street is not in the map database")
+                        .filter { d -> d.isNotBlank() }
+                        .joinToString(" · "),
+                )
+            }
+        }
+    }
+    return emptyList()
 }
 
 private fun searchPhoton(q: String): List<PlaceHit> {
@@ -136,16 +203,19 @@ private fun searchPhoton(q: String): List<PlaceHit> {
         val coords = geom.optJSONArray("coordinates") ?: continue
         if (coords.length() < 2) continue
         val name = props.optString("name").ifBlank {
-            props.optString("street").ifBlank { "Place" }
+            listOf(props.optString("housenumber"), props.optString("street"))
+                .filter { it.isNotBlank() }.joinToString(" ").ifBlank { "Place" }
         }
         val bits = listOf(
             props.optString("housenumber"),
             props.optString("street"),
             props.optString("city").ifBlank { props.optString("locality") },
             props.optString("state"),
+            props.optString("postcode"),
             props.optString("country"),
         ).filter { it.isNotBlank() && it != name }
-        out.add(PlaceHit(name, bits.take(3).joinToString(", "), coords.getDouble(1), coords.getDouble(0)))
+        val kind = props.optString("osm_value").ifBlank { props.optString("type") }
+        out.add(PlaceHit(name, bits.take(4).joinToString(", "), coords.getDouble(1), coords.getDouble(0), kind))
     }
     return out
 }
@@ -161,7 +231,8 @@ private fun searchNominatim(q: String): List<PlaceHit> {
         val display = o.optString("display_name")
         val name = o.optString("name").ifBlank { display.split(",").firstOrNull()?.trim() ?: display }
         val detail = display.split(",").map { it.trim() }.drop(1).take(3).joinToString(", ")
-        out.add(PlaceHit(name, detail, o.getDouble("lat"), o.getDouble("lon")))
+        val kind = o.optString("type").ifBlank { o.optString("addresstype") }
+        out.add(PlaceHit(name, detail, o.getDouble("lat"), o.getDouble("lon"), kind))
     }
     return out
 }
