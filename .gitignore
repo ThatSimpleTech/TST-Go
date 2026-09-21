@@ -46,3 +46,9 @@ android/app/build/
 android/local.properties
 *.apk
 !public/tst-go.apk
+!public/tst-go.aab
+*.aab
+!public/tst-go.aab
+*.jks
+*.keystore
+android/keystore.properties

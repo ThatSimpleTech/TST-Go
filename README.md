@@ -74,6 +74,20 @@ The APK lands at `android/app/build/outputs/apk/debug/app-debug.apk`.
 
 Requires **Node.js 22+** for the web app, **JDK 17** plus an Android SDK for the APK.
 
+### Google Play (Android App Bundle)
+
+Play Console needs an **.aab**, not the sideload APK. A Play-signed bundle is built with:
+
+```bash
+cd android
+./gradlew bundleRelease
+```
+
+Copy `android/keystore.properties.example` to `keystore.properties` and point it at your upload keystore. Keep that keystore private — losing it means you cannot update the Play listing.
+
+Listing copy lives in `play/STORE_LISTING.md`. Privacy policy: `public/privacy.html`.
+
+
 You can also use GitHub → **Code** → **Download ZIP** if you do not use git.
 
 ---
