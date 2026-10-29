@@ -26,4 +26,13 @@
     <string name="removed_toast">Removed from favorites</string>
     <string name="no_favorites">No saved places yet. Jump somewhere, then tap Save.</string>
     <string name="remove">Remove</string>
+    <string name="stop_gps">Stop GPS</string>
+    <string name="stop_gps_long">Stop fake GPS</string>
+    <string name="stopped_toast">TST Go stopped. Your real GPS is back.</string>
+    <string name="already_stopped_toast">TST Go is already off.</string>
+    <string name="widget_name">TST Go stop button</string>
+    <string name="widget_description">Shows when TST Go is changing your GPS. Tap Stop to get your real GPS back.</string>
+    <string name="widget_live">Live at %1$s</string>
+    <string name="widget_off">Off. Apps see your real GPS.</string>
+    <string name="widget_open">Open</string>
 </resources>

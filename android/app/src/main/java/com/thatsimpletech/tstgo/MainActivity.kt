@@ -46,6 +46,8 @@ class MainActivity : AppCompatActivity() {
     private var line: Polyline? = null
     private var lastTick = SystemClockElapsed()
     private var searchJob: Job? = null
+    private var syncingSwitch = false
+    private val gpsStopped: () -> Unit = { ui.post { onGpsStopped() } }
 
     private val tick = object : Runnable {
         override fun run() {
@@ -53,7 +55,8 @@ class MainActivity : AppCompatActivity() {
             engine.tick(now - lastTick)
             lastTick = now
             val p = engine.pos()
-            MockBus.setFix(p.lat, p.lng, engine.heading, engine.speedKmh)
+            MockBus.setFix(p.lat, p.lng, engine.heading, engine.speedKmh, engine.label)
+            LastPin.save(this@MainActivity, p.lat, p.lng, engine.label)
             updateHud()
             marker?.position = GeoPoint(p.lat, p.lng)
             marker?.rotation = (-engine.heading).toFloat()
@@ -75,6 +78,8 @@ class MainActivity : AppCompatActivity() {
         bind = ActivityMainBinding.inflate(layoutInflater)
         setContentView(bind.root)
         favs = FavoritesStore(this)
+        restoreLastPin()
+        MockBus.onStopped = gpsStopped
         askPerms()
 
         bind.map.setTileSource(EsriStreetTiles())
@@ -145,6 +150,7 @@ class MainActivity : AppCompatActivity() {
 
         bind.broadcastRow.setOnClickListener { MockBus.openDeveloperSettings(this) }
         bind.broadcastSwitch.setOnCheckedChangeListener { _, on ->
+            if (syncingSwitch) return@setOnCheckedChangeListener
             if (on) startBroadcast() else MockLocationService.stop(this)
             paintBroadcast()
         }
@@ -153,10 +159,32 @@ class MainActivity : AppCompatActivity() {
         ui.post(tick)
         updateHud()
         val start = engine.pos()
-        MockBus.setFix(start.lat, start.lng, engine.heading, engine.speedKmh)
+        MockBus.setFix(start.lat, start.lng, engine.heading, engine.speedKmh, engine.label)
         bind.broadcastSwitch.isChecked = true
         paintBroadcast()
         paintSave()
+    }
+
+    /** Comes back to the last pin instead of the built-in default (Times Square). */
+    private fun restoreLastPin() {
+        val fromMemory = if (MockBus.hasFix) LastPin.Pin(MockBus.lat, MockBus.lng, MockBus.label) else null
+        val saved = fromMemory ?: LastPin.load(this) ?: return
+        engine.pick = LatLng(saved.lat, saved.lng)
+        engine.label = saved.label
+    }
+
+    /** GPS was stopped from the notification, widget, or shortcut. Match the screen to it. */
+    private fun onGpsStopped() {
+        if (isFinishing || isDestroyed || MockBus.running) return
+        if (bind.broadcastSwitch.isChecked) {
+            syncingSwitch = true
+            bind.broadcastSwitch.isChecked = false
+            syncingSwitch = false
+            engine.stop()
+        }
+        paintBroadcast()
+        paintGo()
+        updateHud()
     }
 
     private fun toggleSave() {
@@ -372,10 +400,13 @@ class MainActivity : AppCompatActivity() {
         engine.waypoints.add(engine.pos())
         engine.waypoints.add(p)
         engine.teleport(p, name)
-        MockBus.setFix(p.lat, p.lng, engine.heading, engine.speedKmh)
+        MockBus.setFix(p.lat, p.lng, engine.heading, engine.speedKmh, name)
+        LastPin.save(this, p.lat, p.lng, name, force = true)
         hideResults()
         if (!MockBus.running) startBroadcast()
         bind.broadcastSwitch.isChecked = true
+        MockLocationService.refresh(this)
+        StopWidget.refresh(this)
         bind.map.controller.animateTo(GeoPoint(p.lat, p.lng), 16.0, 400L)
         marker?.position = GeoPoint(p.lat, p.lng)
         marker?.title = name
@@ -472,6 +503,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
+        val p = engine.pos()
+        LastPin.save(this, p.lat, p.lng, engine.label, force = true)
         bind.map.onPause()
         super.onPause()
     }
@@ -479,6 +512,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         ui.removeCallbacks(tick)
         ui.removeCallbacks(searchDebounce)
+        if (MockBus.onStopped === gpsStopped) MockBus.onStopped = null
         super.onDestroy()
     }
 }

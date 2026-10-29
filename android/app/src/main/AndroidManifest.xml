@@ -30,16 +30,42 @@
             android:name=".MainActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|keyboardHidden"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
+        <!-- Shortcut target: stops the fake GPS and closes right away. -->
+        <activity
+            android:name=".StopActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay" />
         <service
             android:name=".MockLocationService"
             android:exported="false"
             android:foregroundServiceType="location"
             android:stopWithTask="false" />
+        <receiver
+            android:name=".StopReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".StopWidget"
+            android:exported="false"
+            android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_stop_info" />
+        </receiver>
     </application>
 </manifest>

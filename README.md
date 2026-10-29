@@ -26,6 +26,14 @@ A **browser tab without the extension** cannot inject GPS into other apps. The w
 
 Requires Android 8 or newer. Not listed on the Play Store; sideload only.
 
+**Stop it without opening the app** (gets your real GPS back):
+
+- Pull down the notification shade and tap **Stop GPS** on the TST Go notification.
+- Or long-press the TST Go icon and tap **Stop GPS**. Drag that item onto the home screen to keep a one-tap stop button there.
+- Or add the **TST Go stop button** widget: long-press the home screen → Widgets → TST Go.
+
+TST Go remembers your last pin. Reopening the app, or Android restarting it in the background, keeps you where you were instead of jumping back to the default.
+
 ### Phone (browser app)
 
 1. Open TST Go in **Safari** (iPhone / iPad) or **Chrome** (Android).
@@ -104,6 +112,8 @@ You can also use GitHub → **Code** → **Download ZIP** if you do not use git.
 - **Export GPX** of the route (web)
 - **Streets or satellite** map (web)
 - **Broadcast to other apps** (Android APK, mock location)
+- **Stop from the home screen**: notification button, icon shortcut, or widget (Android APK)
+- Your last pin is **remembered** after a reload or restart (web and Android)
 - **Spoof GPS in Chrome/Edge/Firefox** (Mac / Windows / Linux extension)
 
 Favorites and history stay on this device. There is no account.
