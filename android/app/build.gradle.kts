@@ -13,11 +13,11 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.thatsimpletech.tstgo"
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.thatsimpletech.tstgo"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 9
         versionName = "1.0.8"
     }

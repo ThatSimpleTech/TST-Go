@@ -111,12 +111,17 @@ class MockLocationService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        fun openIntent(ctx: Context): PendingIntent = PendingIntent.getActivity(
-            ctx,
-            0,
-            Intent(ctx, MainActivity::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
+        /** Opens the app the same way the launcher icon does (resumes it if already open). */
+        fun openIntent(ctx: Context): PendingIntent {
+            val launch = ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)
+                ?: Intent(ctx, MainActivity::class.java)
+            return PendingIntent.getActivity(
+                ctx,
+                0,
+                launch,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        }
 
         private fun buildNotice(ctx: Context): Notification {
             return NotificationCompat.Builder(ctx, CHANNEL)

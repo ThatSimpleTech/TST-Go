@@ -23,6 +23,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import com.thatsimpletech.tstgo.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +81,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         bind = ActivityMainBinding.inflate(layoutInflater)
         setContentView(bind.root)
+        fitSystemBars()
         favs = FavoritesStore(this)
         restoreLastPin()
         MockBus.onStopped = gpsStopped
@@ -163,6 +168,33 @@ class MainActivity : AppCompatActivity() {
         bind.broadcastSwitch.isChecked = true
         paintBroadcast()
         paintSave()
+    }
+
+    /**
+     * Android 15+ always draws apps edge to edge. Do the same on older phones and pad
+     * the controls so they never sit under the status bar, notch, or navigation bar.
+     */
+    private fun fitSystemBars() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val top = bind.topBar
+        val bottom = bind.bottomBar
+        val topPad = intArrayOf(top.paddingLeft, top.paddingTop, top.paddingRight, top.paddingBottom)
+        val bottomPad = intArrayOf(bottom.paddingLeft, bottom.paddingTop, bottom.paddingRight, bottom.paddingBottom)
+        ViewCompat.setOnApplyWindowInsetsListener(bind.root) { _, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
+            )
+            top.setPadding(topPad[0] + bars.left, topPad[1] + bars.top, topPad[2] + bars.right, topPad[3])
+            bottom.setPadding(
+                bottomPad[0] + bars.left,
+                bottomPad[1],
+                bottomPad[2] + bars.right,
+                bottomPad[3] + bars.bottom,
+            )
+            bind.statusScrim.updateLayoutParams { height = bars.top }
+            bind.navScrim.updateLayoutParams { height = bars.bottom }
+            insets
+        }
     }
 
     /** Comes back to the last pin instead of the built-in default (Times Square). */
