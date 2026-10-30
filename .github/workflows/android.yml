@@ -28,15 +28,35 @@ jobs:
           distribution: temurin
           java-version: "17"
       - uses: gradle/actions/setup-gradle@v4
-      # Keep one debug signing key across runs so each new test APK installs over the
-      # last one. (Without this, every run makes a new key and Android refuses the update.)
-      - name: Reuse the test signing key
+      # Sign every test APK with the same key so each one installs over the last.
+      # (Otherwise each run makes a new key and Android refuses the update.)
+      # Order of preference: the TSTGO_TEST_KEYSTORE_BASE64 secret if set, then the key
+      # saved in the Actions cache, else a new key that the cache then keeps.
+      - name: Restore the test signing key
         uses: actions/cache@v4
         with:
-          path: ~/.android/debug.keystore
-          key: tstgo-debug-keystore-v1
+          path: ~/tstgo-test.keystore
+          key: tstgo-test-keystore-v1
+      - name: Prepare the test signing key
+        env:
+          TEST_KEYSTORE_B64: ${{ secrets.TSTGO_TEST_KEYSTORE_BASE64 }}
+        run: |
+          ks="$HOME/tstgo-test.keystore"
+          if [ -n "$TEST_KEYSTORE_B64" ]; then
+            echo "$TEST_KEYSTORE_B64" | base64 -d > "$ks"
+            echo "Using the key from the TSTGO_TEST_KEYSTORE_BASE64 secret"
+          elif [ -f "$ks" ]; then
+            echo "Using the saved test key"
+          else
+            keytool -genkeypair -keystore "$ks" -storepass android -keypass android \
+              -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=TST Go test build, O=That Simple Tech, C=US"
+            echo "Created a new test key"
+          fi
+          keytool -list -v -keystore "$ks" -storepass android | grep -m1 "SHA256:"
+          echo "TSTGO_DEBUG_KEYSTORE=$ks" >> "$GITHUB_ENV"
       - name: Build debug APK and release bundle
-        # The release bundle here is signed with the debug key; it only checks that a
+        # The release bundle here is signed with the test key; it only checks that a
         # release build (including Play's lint checks) succeeds. See android-release.yml.
         run: ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace
       - name: Unit tests
