@@ -121,20 +121,98 @@ private fun httpGet(url: String): String {
     return body
 }
 
-fun searchPlaces(q: String): List<PlaceHit> {
+/**
+ * Finds places for the search box.
+ *
+ * [thorough] is for the Search button: it also asks the US Census Bureau (which knows almost
+ * every US street address, unlike OpenStreetMap) and Nominatim, then falls back to the city.
+ * While typing, only Photon is used: it is fast and allows search-as-you-type.
+ * [near] nudges results toward the current pin when the query has no city.
+ */
+fun searchPlaces(
+    q: String,
+    near: LatLng? = null,
+    thorough: Boolean = true,
+    useCensus: Boolean = true,
+): List<PlaceHit> {
+    val query = cleanAddress(q)
+    if (query.isBlank()) return emptyList()
+    val exact = mutableListOf<PlaceHit>()
+    if (thorough && useCensus && looksLikeStreetAddress(query)) {
+        try {
+            exact += searchCensus(query)
+        } catch (_: Exception) {
+        }
+    }
     val raw = mutableListOf<PlaceHit>()
     try {
-        raw += searchPhoton(q)
+        raw += searchPhoton(query, near)
     } catch (_: Exception) {
     }
-    try {
-        raw += searchNominatim(q)
-    } catch (_: Exception) {
+    if (thorough) {
+        try {
+            raw += searchNominatim(query)
+        } catch (_: Exception) {
+        }
     }
-    val ranked = rankHits(q, raw)
-    if (ranked.isNotEmpty()) return ranked
-    return fallbackRegion(q)
+    val ranked = (exact + rankHits(query, raw))
+        .distinctBy { "%.4f,%.4f".format(it.lat, it.lng) }
+        .take(5)
+    if (ranked.isNotEmpty() || !thorough) return ranked
+    return fallbackRegion(query)
 }
+
+/** "123 Main St Apt 4B, Town" -> "123 Main St, Town". Unit numbers make every geocoder miss. */
+fun cleanAddress(q: String): String =
+    q.replace(UNIT_RE, "")
+        .replace(Regex("""\s+"""), " ")
+        .replace(Regex("""\s+,"""), ",")
+        .trim()
+        .trim(',')
+        .trim()
+
+private val UNIT_RE = Regex(
+    """(?i)(?:,\s*|\s+)(?:apt|apartment|unit|suite|ste|bldg|building|fl|floor|rm|room|lot)(?:\.\s*|\s+|\s*#\s*)(?:[a-z]?\d[a-z0-9-]*|[a-z])(?=,|\s|$)|\s*#\s*[a-z0-9-]+(?=,|\s|$)""",
+)
+
+/** Starts with a house number followed by a street name, e.g. "123 Main St". */
+fun looksLikeStreetAddress(q: String): Boolean =
+    Regex("""^\d+[a-zA-Z]?(?:-\d+)?\s+[A-Za-z0-9]""").containsMatchIn(q.trim())
+
+/** US Census Bureau geocoder: free, no key, covers nearly every US street address. */
+private fun searchCensus(q: String): List<PlaceHit> {
+    val url =
+        "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?benchmark=Public_AR_Current&format=json&address=" +
+            URLEncoder.encode(q, "UTF-8")
+    val matches = JSONObject(httpGet(url))
+        .optJSONObject("result")
+        ?.optJSONArray("addressMatches")
+        ?: return emptyList()
+    val out = ArrayList<PlaceHit>(matches.length())
+    for (i in 0 until matches.length()) {
+        val m = matches.getJSONObject(i)
+        val c = m.optJSONObject("coordinates") ?: continue
+        val lng = c.optDouble("x")
+        val lat = c.optDouble("y")
+        if (!lat.isFinite() || !lng.isFinite()) continue
+        // "4600 SILVER HILL RD, WASHINGTON, DC, 20233"
+        val parts = m.optString("matchedAddress").split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        val street = titleCase(parts.firstOrNull() ?: q)
+        val rest = parts.drop(1).mapIndexed { idx, part ->
+            if (idx == 0) titleCase(part) else part
+        }
+        out.add(PlaceHit(street, rest.joinToString(", "), lat, lng, "house"))
+    }
+    return out
+}
+
+private fun titleCase(s: String): String =
+    s.lowercase().split(" ").joinToString(" ") { word ->
+        when {
+            word.length <= 2 && word in setOf("ne", "nw", "se", "sw") -> word.uppercase()
+            else -> word.replaceFirstChar { it.uppercase() }
+        }
+    }
 
 private val STOP_WORDS = setOf(
     "the", "of", "and", "al", "usa", "us", "united", "states", "street", "st",
@@ -192,8 +270,9 @@ private fun fallbackRegion(q: String): List<PlaceHit> {
     return emptyList()
 }
 
-private fun searchPhoton(q: String): List<PlaceHit> {
-    val url = "https://photon.komoot.io/api/?limit=7&q=" + URLEncoder.encode(q, "UTF-8")
+private fun searchPhoton(q: String, near: LatLng? = null): List<PlaceHit> {
+    var url = "https://photon.komoot.io/api/?limit=7&q=" + URLEncoder.encode(q, "UTF-8")
+    if (near != null) url += "&lat=${near.lat}&lon=${near.lng}"
     val feats = JSONObject(httpGet(url)).optJSONArray("features") ?: return emptyList()
     val out = ArrayList<PlaceHit>(feats.length())
     for (i in 0 until feats.length()) {

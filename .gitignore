@@ -52,3 +52,7 @@ android/local.properties
 *.jks
 *.keystore
 android/keystore.properties
+
+# python
+__pycache__/
+*.pyc

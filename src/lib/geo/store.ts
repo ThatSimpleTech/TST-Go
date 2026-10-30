@@ -305,6 +305,9 @@ export const useFlashGo = create<FlashGoState>()(
     {
       name: "flashgo-v1",
       partialize: (s) => ({
+        // Last broadcast point, so a reload (and the browser extension) stays put
+        // instead of snapping back to the default pin.
+        pick: { lat: (s.sim ?? s.pick).lat, lng: (s.sim ?? s.pick).lng, label: s.pick.label },
         favorites: s.favorites,
         history: s.history,
         onboarded: s.onboarded,

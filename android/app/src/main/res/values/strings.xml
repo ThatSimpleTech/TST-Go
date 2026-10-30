@@ -3,6 +3,7 @@
     <string name="app_name">TST Go</string>
     <string name="search_hint">Search a city, mall, address, or lat, lng</string>
     <string name="search_action">Search</string>
+    <string name="search_none">Couldn\'t find that. For a street address, include the city and state or the ZIP code.</string>
     <string name="idle_pin">Idle pin</string>
     <string name="live_signal">Live signal</string>
     <string name="paused">Paused</string>
@@ -26,4 +27,14 @@
     <string name="removed_toast">Removed from favorites</string>
     <string name="no_favorites">No saved places yet. Jump somewhere, then tap Save.</string>
     <string name="remove">Remove</string>
+    <string name="stop_gps">Stop GPS</string>
+    <string name="start_gps">Start GPS</string>
+    <string name="stop_gps_long">Stop fake GPS</string>
+    <string name="stopped_toast">TST Go stopped. Your real GPS is back.</string>
+    <string name="already_stopped_toast">TST Go is already off.</string>
+    <string name="widget_name">TST Go stop button</string>
+    <string name="widget_description">Shows when TST Go is changing your GPS. Tap Stop to get your real GPS back.</string>
+    <string name="widget_live">Live at %1$s</string>
+    <string name="widget_off">Off. Apps see your real GPS.</string>
+    <string name="widget_open">Open</string>
 </resources>

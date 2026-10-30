@@ -26,6 +26,16 @@ A **browser tab without the extension** cannot inject GPS into other apps. The w
 
 Requires Android 8 or newer. Not listed on the Play Store; sideload only.
 
+**Stop GPS** (gets your real GPS back): tap the red **Stop GPS** button on the main screen, next to "Broadcast to other apps". The header shows the installed version, for example "TST Go 1.0.10".
+
+**Stop it without opening the app**:
+
+- Pull down the notification shade and tap **Stop GPS** on the TST Go notification.
+- Or long-press the TST Go icon and tap **Stop GPS**. Drag that item onto the home screen to keep a one-tap stop button there.
+- Or add the **TST Go stop button** widget: long-press the home screen → Widgets → TST Go.
+
+TST Go remembers your last pin. Reopening the app, or Android restarting it in the background, keeps you where you were instead of jumping back to the default. On a fresh install it leaves your real GPS alone until you pick a spot.
+
 ### Phone (browser app)
 
 1. Open TST Go in **Safari** (iPhone / iPad) or **Chrome** (Android).
@@ -85,6 +95,17 @@ cd android
 
 Copy `android/keystore.properties.example` to `keystore.properties` and point it at your upload keystore. Keep that keystore private — losing it means you cannot update the Play listing.
 
+**Release from GitHub instead** (no Android Studio needed):
+
+1. Repo → Settings → Secrets and variables → Actions → add:
+   - `ANDROID_UPLOAD_KEYSTORE_BASE64` — the upload keystore, base64-encoded (`base64 -w0 upload-keystore.jks` on Linux, `base64 -i upload-keystore.jks` on Mac)
+   - `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`
+   - `PLAY_SERVICE_ACCOUNT_JSON` — optional; a Google Cloud service account key that has release access in Play Console → Users and permissions. Without it, the workflow only builds the signed `.aab` for you to upload by hand.
+2. Actions → **Android release (Google Play)** → Run workflow. Pick a track (start with **internal**).
+3. Bump `versionCode` in `android/app/build.gradle.kts` before every new upload; Play rejects a code it has already seen.
+
+Production uploads are created as a draft so you send them for review in Play Console. Google Play requires new updates to target Android 16 (API 36); this app does.
+
 Listing copy lives in `play/STORE_LISTING.md`. Privacy policy: `public/privacy.html`.
 
 
@@ -104,6 +125,8 @@ You can also use GitHub → **Code** → **Download ZIP** if you do not use git.
 - **Export GPX** of the route (web)
 - **Streets or satellite** map (web)
 - **Broadcast to other apps** (Android APK, mock location)
+- **Stop from the home screen**: notification button, icon shortcut, or widget (Android APK)
+- Your last pin is **remembered** after a reload or restart (web and Android)
 - **Spoof GPS in Chrome/Edge/Firefox** (Mac / Windows / Linux extension)
 
 Favorites and history stay on this device. There is no account.

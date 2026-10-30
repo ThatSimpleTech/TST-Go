@@ -13,15 +13,26 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.thatsimpletech.tstgo"
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.thatsimpletech.tstgo"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 8
-        versionName = "1.0.7"
+        targetSdk = 36
+        versionCode = 11
+        versionName = "1.0.10"
     }
     signingConfigs {
+        // CI signs test APKs with one saved key (TSTGO_DEBUG_KEYSTORE) so each new
+        // test build installs over the last one. Local builds keep the usual debug key.
+        val ciDebugKeystore = System.getenv("TSTGO_DEBUG_KEYSTORE")?.let { file(it) }
+        if (ciDebugKeystore != null && ciDebugKeystore.exists()) {
+            getByName("debug") {
+                storeFile = ciDebugKeystore
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
+        }
         if (keystorePropertiesFile.exists()) {
             create("release") {
                 keyAlias = keystoreProperties.getProperty("keyAlias")
@@ -61,4 +72,8 @@ dependencies {
     implementation("org.osmdroid:osmdroid-android:6.1.20")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    testImplementation("junit:junit:4.13.2")
+    // Real org.json for JVM tests (android.jar only ships stubs).
+    testImplementation("org.json:json:20240303")
 }

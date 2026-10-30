@@ -41,24 +41,26 @@ class MockLocationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        MockBus.restore(this)
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(
             NotificationChannel(CHANNEL, "TST Go GPS", NotificationManager.IMPORTANCE_LOW),
         )
         try {
-            startForeground(1, notice())
+            startForeground(NOTICE_ID, notice())
         } catch (_: Exception) {
         }
         MockBus.running = true
         MockBus.prepare(this)
         val t = HandlerThread("tstgo-gps").also { it.start(); thread = it }
         handler = Handler(t.looper).also { it.post(pulse) }
+        StopWidget.refresh(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         MockBus.running = true
         try {
-            startForeground(1, notice())
+            startForeground(NOTICE_ID, notice())
         } catch (_: Exception) {
         }
         return START_STICKY
@@ -71,32 +73,66 @@ class MockLocationService : Service() {
         thread = null
         MockBus.running = false
         MockBus.teardown(this)
+        StopWidget.refresh(this)
+        MockBus.onStopped?.invoke()
         super.onDestroy()
     }
 
-    private fun notice(): Notification {
-        val launch = PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
-        return NotificationCompat.Builder(this, CHANNEL)
-            .setContentTitle("TST Go is changing your GPS")
-            .setContentText("Maps and other apps should follow this pin. Tap to open.")
-            .setSmallIcon(R.drawable.ic_stat_gps)
-            .setContentIntent(launch)
-            .setOngoing(true)
-            .build()
-    }
+    private fun notice(): Notification = buildNotice(this)
 
     companion object {
         private const val CHANNEL = "tstgo_mock"
+        private const val NOTICE_ID = 1
+        const val ACTION_STOP = "com.thatsimpletech.tstgo.STOP"
+
         fun start(ctx: Context) {
             ctx.startForegroundService(Intent(ctx, MockLocationService::class.java))
         }
+
         fun stop(ctx: Context) {
             ctx.stopService(Intent(ctx, MockLocationService::class.java))
+        }
+
+        /** Re-posts the ongoing notification so it shows the current pin name. */
+        fun refresh(ctx: Context) {
+            if (!MockBus.running) return
+            try {
+                ctx.getSystemService(NotificationManager::class.java)
+                    ?.notify(NOTICE_ID, buildNotice(ctx))
+            } catch (_: Exception) {
+            }
+        }
+
+        /** Tapping this stops the fake GPS from anywhere: notification, widget, shortcut. */
+        fun stopIntent(ctx: Context): PendingIntent = PendingIntent.getBroadcast(
+            ctx,
+            1,
+            Intent(ctx, StopReceiver::class.java).setAction(ACTION_STOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
+        /** Opens the app the same way the launcher icon does (resumes it if already open). */
+        fun openIntent(ctx: Context): PendingIntent {
+            val launch = ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)
+                ?: Intent(ctx, MainActivity::class.java)
+            return PendingIntent.getActivity(
+                ctx,
+                0,
+                launch,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        }
+
+        private fun buildNotice(ctx: Context): Notification {
+            return NotificationCompat.Builder(ctx, CHANNEL)
+                .setContentTitle("TST Go is changing your GPS")
+                .setContentText("At ${MockBus.label}. Tap Stop to get your real GPS back.")
+                .setSmallIcon(R.drawable.ic_stat_gps)
+                .setContentIntent(openIntent(ctx))
+                .addAction(R.drawable.ic_stat_stop, ctx.getString(R.string.stop_gps), stopIntent(ctx))
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .build()
         }
     }
 }
@@ -107,17 +143,36 @@ object MockBus {
     @Volatile var lastOk = false
     @Volatile var lat = 40.758
     @Volatile var lng = -73.9855
+    @Volatile var label = "Times Square"
     @Volatile var heading = 0.0
     @Volatile var speedKmh = 0.0
+
+    /** True once a real pin is loaded (from the app or from disk), not the default. */
+    @Volatile var hasFix = false
+
+    /** Called on the main thread when the GPS service shuts down. */
+    @Volatile var onStopped: (() -> Unit)? = null
 
     private var fused: FusedLocationProviderClient? = null
     private var fusedReady = false
 
-    fun setFix(lat: Double, lng: Double, heading: Double, speedKmh: Double) {
+    fun setFix(lat: Double, lng: Double, heading: Double, speedKmh: Double, label: String? = null) {
         this.lat = lat
         this.lng = lng
         this.heading = heading
         this.speedKmh = speedKmh
+        if (label != null) this.label = label
+        hasFix = true
+    }
+
+    /**
+     * After Android kills and restarts the app, memory is empty. Load the last
+     * saved pin so the service keeps broadcasting it instead of the default.
+     */
+    fun restore(ctx: Context) {
+        if (hasFix) return
+        val saved = LastPin.load(ctx) ?: return
+        setFix(saved.lat, saved.lng, 0.0, 0.0, saved.label)
     }
 
     fun isSelectedMockApp(ctx: Context): Boolean {
@@ -154,7 +209,8 @@ object MockBus {
     }
 
     fun inject(ctx: Context) {
-        if (!running) return
+        // Never broadcast the built-in default; only a pin someone actually set.
+        if (!running || !hasFix) return
         if (!isSelectedMockApp(ctx)) {
             lastOk = false
             lastError = "Select mock location app → TST Go (again after each install)."
