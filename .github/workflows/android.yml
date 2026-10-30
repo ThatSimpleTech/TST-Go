@@ -32,6 +32,20 @@ jobs:
         # The release bundle here is signed with the debug key; it only checks that a
         # release build (including Play's lint checks) succeeds. See android-release.yml.
         run: ./gradlew assembleDebug bundleRelease --no-daemon --stacktrace
+      - name: Unit tests
+        run: ./gradlew testDebugUnitTest --no-daemon --stacktrace
+      - name: Live address search check (report only)
+        continue-on-error: true
+        env:
+          GEOCODE_LIVE: "1"
+          GEOCODE_REPORT: ${{ github.workspace }}/geocode/report.md
+        run: ./gradlew testDebugUnitTest --tests '*AddressTest.liveAddressSearch' --rerun --no-daemon
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: geocode
+          path: geocode
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: tst-go-debug-apk

@@ -129,6 +129,7 @@ class MainActivity : AppCompatActivity() {
 
         bind.search.setOnEditorActionListener { v, action, _ ->
             if (action == EditorInfo.IME_ACTION_SEARCH || action == EditorInfo.IME_ACTION_DONE) {
+                ui.removeCallbacks(searchDebounce)
                 doSearch(v.text.toString(), quiet = false)
                 hideKeyboard()
                 true
@@ -139,10 +140,11 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 ui.removeCallbacks(searchDebounce)
-                ui.postDelayed(searchDebounce, 280)
+                ui.postDelayed(searchDebounce, 450)
             }
         })
         bind.searchGo.setOnClickListener {
+            ui.removeCallbacks(searchDebounce)
             doSearch(bind.search.text.toString(), quiet = false)
             hideKeyboard()
         }
@@ -423,10 +425,12 @@ class MainActivity : AppCompatActivity() {
             return
         }
         searchJob?.cancel()
+        val near = engine.pos()
         searchJob = scope.launch {
             val hits = withContext(Dispatchers.IO) {
                 try {
-                    searchPlaces(query)
+                    // While typing: quick suggestions. Search button: every source, incl. US Census.
+                    searchPlaces(query, near = near, thorough = !quiet)
                 } catch (_: Exception) {
                     emptyList()
                 }
@@ -435,7 +439,7 @@ class MainActivity : AppCompatActivity() {
             if (hits.isEmpty()) {
                 hideResults()
                 if (!quiet) {
-                    Toast.makeText(this@MainActivity, "No places match that search", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, R.string.search_none, Toast.LENGTH_LONG).show()
                 }
                 return@launch
             }
@@ -457,6 +461,7 @@ class MainActivity : AppCompatActivity() {
                         goTo(LatLng(hit.lat, hit.lng), hit.name)
                         hideResults()
                         bind.search.setText(hit.name)
+                        ui.removeCallbacks(searchDebounce)
                         hideKeyboard()
                     }
                 }

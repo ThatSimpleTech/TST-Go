@@ -61,4 +61,8 @@ dependencies {
     implementation("org.osmdroid:osmdroid-android:6.1.20")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    testImplementation("junit:junit:4.13.2")
+    // Real org.json for JVM tests (android.jar only ships stubs).
+    testImplementation("org.json:json:20240303")
 }

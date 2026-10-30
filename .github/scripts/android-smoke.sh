@@ -139,6 +139,19 @@ shot 08-final-reopen
 coords=$(hud)
 [[ "$coords" == 41.878100* ]] && ok "still Chicago ($coords)" || bad "final reopen shows '$coords'"
 
+log "### 9. Search a street address (uses the live map and US Census services)"
+tap id:search
+adb shell input keyevent KEYCODE_MOVE_END
+for _ in $(seq 1 40); do adb shell input keyevent KEYCODE_DEL; done
+adb shell input text "4600%sSilver%sHill%sRd%sApt%s2,%sWashington,%sDC%s20233"
+sleep 1
+tap id:searchGo
+sleep 12
+shot 09-address-search
+coords=$(hud)
+label=$(ui text id:hudLabel)
+[[ "$coords" == 38.84* ]] && ok "found the address: $label ($coords)" || bad "address search landed on '$label' ($coords)"
+
 log "### Never broadcast New York"
 adb shell dumpsys location > "$OUT/dumpsys-location.txt" 2>&1
 grep -q "40.758000" "$OUT/dumpsys-location.txt" && bad "Times Square (40.758) shows up in the phone's location log" || ok "Times Square never reached the phone's GPS"
