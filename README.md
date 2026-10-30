@@ -26,7 +26,7 @@ A **browser tab without the extension** cannot inject GPS into other apps. The w
 
 Requires Android 8 or newer. Not listed on the Play Store; sideload only.
 
-**Stop GPS** (gets your real GPS back): tap the red **Stop GPS** button on the main screen, next to "Broadcast to other apps". The header shows the installed version, for example "TST Go 1.0.9".
+**Stop GPS** (gets your real GPS back): tap the red **Stop GPS** button on the main screen, next to "Broadcast to other apps". The header shows the installed version, for example "TST Go 1.0.10".
 
 **Stop it without opening the app**:
 

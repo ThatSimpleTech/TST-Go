@@ -28,6 +28,13 @@ jobs:
           distribution: temurin
           java-version: "17"
       - uses: gradle/actions/setup-gradle@v4
+      # Keep one debug signing key across runs so each new test APK installs over the
+      # last one. (Without this, every run makes a new key and Android refuses the update.)
+      - name: Reuse the test signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: tstgo-debug-keystore-v1
       - name: Build debug APK and release bundle
         # The release bundle here is signed with the debug key; it only checks that a
         # release build (including Play's lint checks) succeeds. See android-release.yml.

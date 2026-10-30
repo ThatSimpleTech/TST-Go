@@ -53,7 +53,7 @@ log "### 1. Fresh install"
 open_app
 shot 01-fresh-install
 title=$(ui text id:appTitle)
-[[ "$title" == *1.0.9* ]] && ok "header shows the version: $title" || bad "header shows '$title', expected 1.0.9"
+[[ "$title" == *1.0.10* ]] && ok "header shows the version: $title" || bad "header shows '$title', expected 1.0.10"
 [ "$(button)" = "Start GPS" ] && ok "does not start fake GPS before you pick a spot" || bad "button says '$(button)' on a fresh install"
 svc_running && bad "GPS service already running before a spot was picked" || ok "phone keeps its real GPS until you pick a spot"
 
