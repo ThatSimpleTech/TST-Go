@@ -1,0 +1,578 @@
+Location Manager State:
+  User Info:
+    current users: u[0]
+  Location Settings:
+    Location Setting: true
+    Location Allow/Deny Packages:
+    Throttling Allow Packages:
+      com.google.android.gms
+    Emergency Bypass Allow Packages:
+      com.google.android.dialer[*]
+      com.google.android.gms[.thunderbird]
+      com.google.android.apps.scone[satellite_esos]
+      com.android.phone[telephony]
+  Location Providers:
+    passive provider:
+      service: registered
+      listeners:
+        10143/com.google.android.gms[network_location_provider]/E1E7F022 Request[PASSIVE, minUpdateInterval=0, hiddenFromAppOps, WorkSource{10143 com.google.android.gms}]
+        1000/android[SensorNotificationService]/041B346F Request[PASSIVE, minUpdateInterval=+30m0s0ms, minUpdateDistance=100000.0, WorkSource{1000 android}]
+      last location=Location[fused 38.845056,-76.928366 hAcc=3.2 et=+3m10s493ms alt=18.0 vAcc=2.0 mslAlt=51.48464389501834 mslAltAcc=2.0181427 vel=0.013888889 sAcc=0.25 bear=0.0 bAcc=0.8 mock {Bundle[{satellites=14, mockLocation=true}]}]
+      enabled=true
+      allowed=true
+      identity=1000/android[LocationService]
+      properties=ProviderProperties[powerUsage=Low, accuracy=Fine]
+    network provider [mock]:
+      service: ProviderRequest[OFF]
+      listeners:
+        1000/android[GnssService]/2B90B55B Request[PASSIVE, minUpdateInterval=0, hiddenFromAppOps, WorkSource{1000 android}]
+        10137/com.google.android.as/BCA5B372 Request[@+6h0m0s0ms BALANCED, minUpdateDistance=100000.0, WorkSource{10137 com.google.android.as}]
+      last location=Location[network 38.845056,-76.928366 hAcc=3.2 et=+3m10s482ms alt=18.0 vAcc=2.0 mslAlt=51.48464389501834 mslAltAcc=2.0181427 vel=0.013888889 sAcc=0.25 bear=0.0 bAcc=0.8 mock {Bundle[{satellites=14, mockLocation=true}]}]
+      enabled=true
+      allowed=true
+      identity=10209/com.thatsimpletech.tstgo
+      properties=ProviderProperties[powerUsage=Low, accuracy=Fine, supports=[bearing,speed,altitude]]
+      last mock location=Location[network 38.845056,-76.928366 hAcc=3.2 et=+3m10s482ms alt=18.0 vAcc=2.0 vel=0.013888889 sAcc=0.25 bear=0.0 bAcc=0.8 mock {Bundle[{satellites=14, mockLocation=true}]}]
+    fused provider [mock]:
+      service: ProviderRequest[OFF]
+      last location=Location[fused 38.845056,-76.928366 hAcc=3.2 et=+3m10s493ms alt=18.0 vAcc=2.0 mslAlt=51.48464389501834 mslAltAcc=2.0181427 vel=0.013888889 sAcc=0.25 bear=0.0 bAcc=0.8 mock {Bundle[{satellites=14, mockLocation=true}]}]
+      enabled=true
+      allowed=true
+      identity=10209/com.thatsimpletech.tstgo
+      properties=ProviderProperties[powerUsage=Low, accuracy=Fine, supports=[bearing,speed,altitude]]
+      last mock location=Location[fused 38.845056,-76.928366 hAcc=3.2 et=+3m10s493ms alt=18.0 vAcc=2.0 vel=0.013888889 sAcc=0.25 bear=0.0 bAcc=0.8 mock {Bundle[{satellites=14, mockLocation=true}]}]
+    gps provider [mock]:
+      service: ProviderRequest[OFF]
+      last location=Location[gps 38.845056,-76.928366 hAcc=3.2 et=+3m10s476ms alt=18.0 vAcc=2.0 mslAlt=51.48464389501834 mslAltAcc=2.0181427 vel=0.013888889 sAcc=0.25 bear=0.0 bAcc=0.8 mock {Bundle[{satellites=14, mockLocation=true}]}]
+      enabled=true
+      allowed=true
+      identity=10209/com.thatsimpletech.tstgo
+      properties=ProviderProperties[powerUsage=Low, accuracy=Fine, supports=[bearing,speed,altitude]]
+      last mock location=Location[gps 38.845056,-76.928366 hAcc=3.2 et=+3m10s476ms alt=18.0 vAcc=2.0 vel=0.013888889 sAcc=0.25 bear=0.0 bAcc=0.8 mock {Bundle[{satellites=14, mockLocation=true}]}]
+  Historical Aggregate Location Provider Data:
+    passive:
+      10143/com.google.android.gms[fused_location_provider]: min/max interval = passive/passive, total/active/foreground duration = +52s416ms/+52s352ms/+52s367ms, locations = 19
+      1000/android[SensorNotificationService]: min/max interval = passive/passive, total/active/foreground duration = +2m37s785ms/+2m37s775ms/+2m37s775ms, locations = 1
+      10143/com.google.android.gms[network_location_provider]: min/max interval = passive/passive, total/active/foreground duration = +2m29s140ms/+2m29s63ms/+2m29s74ms, locations = 610
+    network:
+      10137/com.google.android.as: min/max interval = 21600s/21600s, total/active/foreground duration = +2m26s676ms/+2m25s861ms/+2m26s656ms, locations = 1
+      1000/android[GnssService]: min/max interval = passive/passive, total/active/foreground duration = +2m40s660ms/+2m30s836ms/+2m40s660ms, locations = 202
+  Historical Aggregate Gnss Measurement Provider Data:
+  GNSS Manager:
+    Capabilities: [SCHEDULING ACCUMULATED_DELTA_RANGE(unknown) TOTAL_POWER SINGLEBAND_TRACKING_POWER MULTIBAND_TRACKING_POWER SINGLEBAND_ACQUISITION_POWER MULTIBAND_ACQUISITION_POWER OTHER_MODES_POWER]
+    GNSS Hardware Model Name: Android Studio Emulator GPS
+    Status Provider:
+      service: registered
+      listeners:
+        10143/com.google.android.gms[network_location_provider]/7B6F2BA1
+    Measurements Provider:
+      service: unregistered
+      last measurements=null
+    Navigation Message Provider:
+      service: unregistered
+    Antenna Info Provider:
+      Antenna Infos: null
+      service: unregistered
+  Geofence Manager:
+    service: unregistered
+  Event Log:
+    10-30 18:57:58.560: gps provider added mock provider override
+    10-30 18:57:58.560: gps provider [u0] disabled
+    10-30 18:57:58.560: gps provider [u0] enabled
+    10-30 18:57:58.561: network provider added mock provider override
+    10-30 18:57:58.561: network provider [u0] disabled
+    10-30 18:57:58.563: network provider request = ProviderRequest[OFF]
+    10-30 18:57:58.564: network provider [u0] enabled
+    10-30 18:57:58.568: fused provider added mock provider override
+    10-30 18:57:58.568: fused provider [u0] disabled
+    10-30 18:57:58.569: fused provider [u0] enabled
+    10-30 18:57:58.975: gps provider added mock provider override
+    10-30 18:57:58.975: gps provider [u0] disabled
+    10-30 18:57:58.976: gps provider [u0] enabled
+    10-30 18:57:58.984: network provider added mock provider override
+    10-30 18:57:58.984: network provider [u0] disabled
+    10-30 18:57:58.985: network provider request = ProviderRequest[OFF]
+    10-30 18:57:58.987: network provider [u0] enabled
+    10-30 18:57:58.992: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:57:58.993: fused provider added mock provider override
+    10-30 18:57:58.993: fused provider [u0] disabled
+    10-30 18:57:58.993: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:57:58.994: fused provider [u0] enabled
+    10-30 18:57:58.994: fused provider received location[1]
+    10-30 18:57:58.994: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:57:59.404: gps provider added mock provider override
+    10-30 18:57:59.404: gps provider [u0] disabled
+    10-30 18:57:59.404: gps provider [u0] enabled
+    10-30 18:57:59.409: gps provider received location[1]
+    10-30 18:57:59.410: network provider added mock provider override
+    10-30 18:57:59.410: network provider [u0] disabled
+    10-30 18:57:59.410: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:57:59.411: network provider request = ProviderRequest[OFF]
+    10-30 18:57:59.412: network provider [u0] enabled
+    10-30 18:57:59.413: fused provider added mock provider override
+    10-30 18:57:59.413: fused provider [u0] disabled
+    10-30 18:57:59.413: network provider received location[1]
+    10-30 18:57:59.413: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:57:59.413: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:57:59.416: fused provider [u0] enabled
+    10-30 18:57:59.418: fused provider received location[1]
+    10-30 18:57:59.420: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:57:59.831: gps provider added mock provider override
+    10-30 18:57:59.831: gps provider [u0] disabled
+    10-30 18:57:59.832: gps provider [u0] enabled
+    10-30 18:57:59.836: gps provider received location[1]
+    10-30 18:57:59.836: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:57:59.837: network provider added mock provider override
+    10-30 18:57:59.837: network provider [u0] disabled
+    10-30 18:57:59.840: network provider request = ProviderRequest[OFF]
+    10-30 18:57:59.840: network provider [u0] enabled
+    10-30 18:57:59.842: network provider received location[1]
+    10-30 18:57:59.842: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:57:59.842: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:57:59.845: fused provider added mock provider override
+    10-30 18:57:59.845: fused provider [u0] disabled
+    10-30 18:57:59.847: fused provider [u0] enabled
+    10-30 18:57:59.848: fused provider received location[1]
+    10-30 18:57:59.848: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:00.286: gps provider added mock provider override
+    10-30 18:58:00.286: gps provider [u0] disabled
+    10-30 18:58:00.287: gps provider [u0] enabled
+    10-30 18:58:00.287: gps provider received location[1]
+    10-30 18:58:00.288: network provider added mock provider override
+    10-30 18:58:00.288: network provider [u0] disabled
+    10-30 18:58:00.288: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:00.289: network provider request = ProviderRequest[OFF]
+    10-30 18:58:00.289: network provider [u0] enabled
+    10-30 18:58:00.291: network provider received location[1]
+    10-30 18:58:00.291: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:00.292: fused provider added mock provider override
+    10-30 18:58:00.292: fused provider [u0] disabled
+    10-30 18:58:00.292: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:00.293: fused provider [u0] enabled
+    10-30 18:58:00.294: fused provider received location[1]
+    10-30 18:58:00.294: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:00.704: gps provider added mock provider override
+    10-30 18:58:00.705: gps provider [u0] disabled
+    10-30 18:58:00.705: gps provider [u0] enabled
+    10-30 18:58:00.706: network provider added mock provider override
+    10-30 18:58:00.706: network provider [u0] disabled
+    10-30 18:58:00.706: gps provider received location[1]
+    10-30 18:58:00.706: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:00.707: network provider request = ProviderRequest[OFF]
+    10-30 18:58:00.707: network provider [u0] enabled
+    10-30 18:58:00.708: network provider received location[1]
+    10-30 18:58:00.709: fused provider added mock provider override
+    10-30 18:58:00.709: fused provider [u0] disabled
+    10-30 18:58:00.709: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:00.709: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:00.710: fused provider [u0] enabled
+    10-30 18:58:00.711: fused provider received location[1]
+    10-30 18:58:00.711: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:01.121: gps provider added mock provider override
+    10-30 18:58:01.121: gps provider [u0] disabled
+    10-30 18:58:01.122: gps provider [u0] enabled
+    10-30 18:58:01.123: gps provider received location[1]
+    10-30 18:58:01.128: network provider added mock provider override
+    10-30 18:58:01.128: network provider [u0] disabled
+    10-30 18:58:01.128: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:01.129: network provider request = ProviderRequest[OFF]
+    10-30 18:58:01.129: network provider [u0] enabled
+    10-30 18:58:01.130: network provider received location[1]
+    10-30 18:58:01.130: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:01.130: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:01.131: fused provider added mock provider override
+    10-30 18:58:01.131: fused provider [u0] disabled
+    10-30 18:58:01.133: fused provider [u0] enabled
+    10-30 18:58:01.135: fused provider received location[1]
+    10-30 18:58:01.135: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:01.561: gps provider added mock provider override
+    10-30 18:58:01.561: gps provider [u0] disabled
+    10-30 18:58:01.562: gps provider [u0] enabled
+    10-30 18:58:01.563: gps provider received location[1]
+    10-30 18:58:01.564: network provider added mock provider override
+    10-30 18:58:01.564: network provider [u0] disabled
+    10-30 18:58:01.564: network provider request = ProviderRequest[OFF]
+    10-30 18:58:01.564: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:01.567: network provider [u0] enabled
+    10-30 18:58:01.570: network provider received location[1]
+    10-30 18:58:01.570: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:01.571: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:01.576: fused provider added mock provider override
+    10-30 18:58:01.576: fused provider [u0] disabled
+    10-30 18:58:01.579: fused provider [u0] enabled
+    10-30 18:58:01.580: fused provider received location[1]
+    10-30 18:58:01.580: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:02.002: gps provider added mock provider override
+    10-30 18:58:02.002: gps provider [u0] disabled
+    10-30 18:58:02.002: gps provider [u0] enabled
+    10-30 18:58:02.004: gps provider received location[1]
+    10-30 18:58:02.004: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:02.005: network provider added mock provider override
+    10-30 18:58:02.005: network provider [u0] disabled
+    10-30 18:58:02.006: network provider request = ProviderRequest[OFF]
+    10-30 18:58:02.006: network provider [u0] enabled
+    10-30 18:58:02.011: network provider received location[1]
+    10-30 18:58:02.011: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:02.011: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:02.012: fused provider added mock provider override
+    10-30 18:58:02.012: fused provider [u0] disabled
+    10-30 18:58:02.012: fused provider [u0] enabled
+    10-30 18:58:02.015: fused provider received location[1]
+    10-30 18:58:02.015: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:02.444: gps provider added mock provider override
+    10-30 18:58:02.444: gps provider [u0] disabled
+    10-30 18:58:02.445: gps provider [u0] enabled
+    10-30 18:58:02.445: gps provider received location[1]
+    10-30 18:58:02.446: network provider added mock provider override
+    10-30 18:58:02.446: network provider [u0] disabled
+    10-30 18:58:02.446: network provider request = ProviderRequest[OFF]
+    10-30 18:58:02.446: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:02.447: network provider [u0] enabled
+    10-30 18:58:02.449: network provider received location[1]
+    10-30 18:58:02.449: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:02.450: fused provider added mock provider override
+    10-30 18:58:02.450: fused provider [u0] disabled
+    10-30 18:58:02.450: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:02.451: fused provider [u0] enabled
+    10-30 18:58:02.458: fused provider received location[1]
+    10-30 18:58:02.458: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:02.885: gps provider added mock provider override
+    10-30 18:58:02.885: gps provider [u0] disabled
+    10-30 18:58:02.886: gps provider [u0] enabled
+    10-30 18:58:02.887: gps provider received location[1]
+    10-30 18:58:02.887: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:02.888: network provider added mock provider override
+    10-30 18:58:02.888: network provider [u0] disabled
+    10-30 18:58:02.889: network provider request = ProviderRequest[OFF]
+    10-30 18:58:02.889: network provider [u0] enabled
+    10-30 18:58:02.892: network provider received location[1]
+    10-30 18:58:02.892: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:02.893: fused provider added mock provider override
+    10-30 18:58:02.893: fused provider [u0] disabled
+    10-30 18:58:02.893: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:02.894: fused provider [u0] enabled
+    10-30 18:58:02.896: fused provider received location[1]
+    10-30 18:58:02.897: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:03.300: gps provider added mock provider override
+    10-30 18:58:03.300: gps provider [u0] disabled
+    10-30 18:58:03.301: gps provider [u0] enabled
+    10-30 18:58:03.303: network provider added mock provider override
+    10-30 18:58:03.303: network provider [u0] disabled
+    10-30 18:58:03.303: gps provider received location[1]
+    10-30 18:58:03.303: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:03.304: network provider request = ProviderRequest[OFF]
+    10-30 18:58:03.305: network provider [u0] enabled
+    10-30 18:58:03.305: network provider received location[1]
+    10-30 18:58:03.305: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:03.305: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:03.306: fused provider added mock provider override
+    10-30 18:58:03.306: fused provider [u0] disabled
+    10-30 18:58:03.307: fused provider [u0] enabled
+    10-30 18:58:03.309: fused provider received location[1]
+    10-30 18:58:03.309: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:03.718: gps provider added mock provider override
+    10-30 18:58:03.718: gps provider [u0] disabled
+    10-30 18:58:03.719: gps provider [u0] enabled
+    10-30 18:58:03.720: gps provider received location[1]
+    10-30 18:58:03.720: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:03.721: network provider added mock provider override
+    10-30 18:58:03.721: network provider [u0] disabled
+    10-30 18:58:03.723: network provider request = ProviderRequest[OFF]
+    10-30 18:58:03.723: network provider [u0] enabled
+    10-30 18:58:03.725: network provider received location[1]
+    10-30 18:58:03.726: fused provider added mock provider override
+    10-30 18:58:03.726: fused provider [u0] disabled
+    10-30 18:58:03.726: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:03.726: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:03.728: fused provider [u0] enabled
+    10-30 18:58:03.728: fused provider received location[1]
+    10-30 18:58:03.728: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:04.143: gps provider added mock provider override
+    10-30 18:58:04.143: gps provider [u0] disabled
+    10-30 18:58:04.144: gps provider [u0] enabled
+    10-30 18:58:04.145: gps provider received location[1]
+    10-30 18:58:04.146: network provider added mock provider override
+    10-30 18:58:04.146: network provider [u0] disabled
+    10-30 18:58:04.146: network provider request = ProviderRequest[OFF]
+    10-30 18:58:04.146: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:04.147: network provider [u0] enabled
+    10-30 18:58:04.148: fused provider added mock provider override
+    10-30 18:58:04.148: network provider received location[1]
+    10-30 18:58:04.148: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:04.148: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:04.149: fused provider [u0] disabled
+    10-30 18:58:04.149: fused provider [u0] enabled
+    10-30 18:58:04.150: fused provider received location[1]
+    10-30 18:58:04.150: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:04.560: gps provider added mock provider override
+    10-30 18:58:04.560: gps provider [u0] disabled
+    10-30 18:58:04.560: gps provider [u0] enabled
+    10-30 18:58:04.561: gps provider received location[1]
+    10-30 18:58:04.562: network provider added mock provider override
+    10-30 18:58:04.562: network provider [u0] disabled
+    10-30 18:58:04.562: network provider request = ProviderRequest[OFF]
+    10-30 18:58:04.562: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:04.563: network provider [u0] enabled
+    10-30 18:58:04.566: network provider received location[1]
+    10-30 18:58:04.566: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:04.566: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:04.567: fused provider added mock provider override
+    10-30 18:58:04.567: fused provider [u0] disabled
+    10-30 18:58:04.568: fused provider [u0] enabled
+    10-30 18:58:04.569: fused provider received location[1]
+    10-30 18:58:04.569: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:04.993: gps provider added mock provider override
+    10-30 18:58:04.993: gps provider [u0] disabled
+    10-30 18:58:04.993: gps provider [u0] enabled
+    10-30 18:58:04.994: gps provider received location[1]
+    10-30 18:58:04.994: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:04.995: network provider added mock provider override
+    10-30 18:58:04.995: network provider [u0] disabled
+    10-30 18:58:04.998: network provider request = ProviderRequest[OFF]
+    10-30 18:58:04.998: network provider [u0] enabled
+    10-30 18:58:05.000: fused provider added mock provider override
+    10-30 18:58:05.000: fused provider [u0] disabled
+    10-30 18:58:05.000: network provider received location[1]
+    10-30 18:58:05.000: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:05.000: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:05.001: fused provider [u0] enabled
+    10-30 18:58:05.001: fused provider received location[1]
+    10-30 18:58:05.001: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:05.407: gps provider added mock provider override
+    10-30 18:58:05.407: gps provider [u0] disabled
+    10-30 18:58:05.408: gps provider [u0] enabled
+    10-30 18:58:05.408: gps provider received location[1]
+    10-30 18:58:05.409: network provider added mock provider override
+    10-30 18:58:05.409: network provider [u0] disabled
+    10-30 18:58:05.409: network provider request = ProviderRequest[OFF]
+    10-30 18:58:05.409: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:05.410: network provider [u0] enabled
+    10-30 18:58:05.411: network provider received location[1]
+    10-30 18:58:05.411: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:05.411: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:05.412: fused provider added mock provider override
+    10-30 18:58:05.412: fused provider [u0] disabled
+    10-30 18:58:05.413: fused provider [u0] enabled
+    10-30 18:58:05.416: fused provider received location[1]
+    10-30 18:58:05.416: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:05.819: gps provider added mock provider override
+    10-30 18:58:05.819: gps provider [u0] disabled
+    10-30 18:58:05.820: gps provider [u0] enabled
+    10-30 18:58:05.821: gps provider received location[1]
+    10-30 18:58:05.821: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:05.822: network provider added mock provider override
+    10-30 18:58:05.822: network provider [u0] disabled
+    10-30 18:58:05.822: network provider request = ProviderRequest[OFF]
+    10-30 18:58:05.823: network provider [u0] enabled
+    10-30 18:58:05.826: fused provider added mock provider override
+    10-30 18:58:05.826: fused provider [u0] disabled
+    10-30 18:58:05.826: network provider received location[1]
+    10-30 18:58:05.826: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:05.826: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:05.827: fused provider [u0] enabled
+    10-30 18:58:05.829: fused provider received location[1]
+    10-30 18:58:05.829: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:06.241: gps provider added mock provider override
+    10-30 18:58:06.242: gps provider [u0] disabled
+    10-30 18:58:06.242: gps provider [u0] enabled
+    10-30 18:58:06.243: gps provider received location[1]
+    10-30 18:58:06.243: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:06.245: network provider added mock provider override
+    10-30 18:58:06.245: network provider [u0] disabled
+    10-30 18:58:06.246: network provider request = ProviderRequest[OFF]
+    10-30 18:58:06.246: network provider [u0] enabled
+    10-30 18:58:06.249: network provider received location[1]
+    10-30 18:58:06.249: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:06.249: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:06.250: fused provider added mock provider override
+    10-30 18:58:06.250: fused provider [u0] disabled
+    10-30 18:58:06.251: fused provider [u0] enabled
+    10-30 18:58:06.253: fused provider received location[1]
+    10-30 18:58:06.253: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:06.665: gps provider added mock provider override
+    10-30 18:58:06.665: gps provider [u0] disabled
+    10-30 18:58:06.665: gps provider [u0] enabled
+    10-30 18:58:06.666: gps provider received location[1]
+    10-30 18:58:06.667: network provider added mock provider override
+    10-30 18:58:06.667: network provider [u0] disabled
+    10-30 18:58:06.667: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:06.668: network provider request = ProviderRequest[OFF]
+    10-30 18:58:06.668: network provider [u0] enabled
+    10-30 18:58:06.671: network provider received location[1]
+    10-30 18:58:06.671: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:06.672: fused provider added mock provider override
+    10-30 18:58:06.672: fused provider [u0] disabled
+    10-30 18:58:06.672: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:06.676: fused provider [u0] enabled
+    10-30 18:58:06.684: fused provider received location[1]
+    10-30 18:58:06.684: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:07.088: gps provider added mock provider override
+    10-30 18:58:07.088: gps provider [u0] disabled
+    10-30 18:58:07.089: gps provider [u0] enabled
+    10-30 18:58:07.090: network provider added mock provider override
+    10-30 18:58:07.090: network provider [u0] disabled
+    10-30 18:58:07.090: gps provider received location[1]
+    10-30 18:58:07.090: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:07.092: network provider request = ProviderRequest[OFF]
+    10-30 18:58:07.093: network provider [u0] enabled
+    10-30 18:58:07.095: fused provider added mock provider override
+    10-30 18:58:07.095: fused provider [u0] disabled
+    10-30 18:58:07.095: network provider received location[1]
+    10-30 18:58:07.095: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:07.095: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:07.097: fused provider [u0] enabled
+    10-30 18:58:07.098: fused provider received location[1]
+    10-30 18:58:07.098: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:07.506: gps provider added mock provider override
+    10-30 18:58:07.506: gps provider [u0] disabled
+    10-30 18:58:07.506: gps provider [u0] enabled
+    10-30 18:58:07.509: gps provider received location[1]
+    10-30 18:58:07.509: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:07.510: network provider added mock provider override
+    10-30 18:58:07.510: network provider [u0] disabled
+    10-30 18:58:07.510: network provider request = ProviderRequest[OFF]
+    10-30 18:58:07.510: network provider [u0] enabled
+    10-30 18:58:07.514: network provider received location[1]
+    10-30 18:58:07.514: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:07.514: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:07.516: fused provider added mock provider override
+    10-30 18:58:07.516: fused provider [u0] disabled
+    10-30 18:58:07.520: fused provider [u0] enabled
+    10-30 18:58:07.521: fused provider received location[1]
+    10-30 18:58:07.521: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:07.925: gps provider added mock provider override
+    10-30 18:58:07.925: gps provider [u0] disabled
+    10-30 18:58:07.926: gps provider [u0] enabled
+    10-30 18:58:07.927: gps provider received location[1]
+    10-30 18:58:07.927: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:07.929: network provider added mock provider override
+    10-30 18:58:07.929: network provider [u0] disabled
+    10-30 18:58:07.929: network provider request = ProviderRequest[OFF]
+    10-30 18:58:07.930: network provider [u0] enabled
+    10-30 18:58:07.931: network provider received location[1]
+    10-30 18:58:07.932: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:07.932: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:07.933: fused provider added mock provider override
+    10-30 18:58:07.933: fused provider [u0] disabled
+    10-30 18:58:07.935: fused provider [u0] enabled
+    10-30 18:58:07.936: fused provider received location[1]
+    10-30 18:58:07.936: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:08.348: gps provider added mock provider override
+    10-30 18:58:08.348: gps provider [u0] disabled
+    10-30 18:58:08.348: gps provider [u0] enabled
+    10-30 18:58:08.350: gps provider received location[1]
+    10-30 18:58:08.351: network provider added mock provider override
+    10-30 18:58:08.351: network provider [u0] disabled
+    10-30 18:58:08.351: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:08.353: network provider request = ProviderRequest[OFF]
+    10-30 18:58:08.354: network provider [u0] enabled
+    10-30 18:58:08.357: network provider received location[1]
+    10-30 18:58:08.361: fused provider added mock provider override
+    10-30 18:58:08.361: fused provider [u0] disabled
+    10-30 18:58:08.361: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:08.361: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:08.363: fused provider [u0] enabled
+    10-30 18:58:08.364: fused provider received location[1]
+    10-30 18:58:08.364: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:08.768: gps provider added mock provider override
+    10-30 18:58:08.769: gps provider [u0] disabled
+    10-30 18:58:08.769: gps provider [u0] enabled
+    10-30 18:58:08.770: gps provider received location[1]
+    10-30 18:58:08.770: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:08.771: network provider added mock provider override
+    10-30 18:58:08.771: network provider [u0] disabled
+    10-30 18:58:08.772: network provider request = ProviderRequest[OFF]
+    10-30 18:58:08.772: network provider [u0] enabled
+    10-30 18:58:08.775: network provider received location[1]
+    10-30 18:58:08.776: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:08.777: fused provider added mock provider override
+    10-30 18:58:08.777: fused provider [u0] disabled
+    10-30 18:58:08.777: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:08.779: fused provider [u0] enabled
+    10-30 18:58:08.783: fused provider received location[1]
+    10-30 18:58:08.784: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:09.192: gps provider added mock provider override
+    10-30 18:58:09.192: gps provider [u0] disabled
+    10-30 18:58:09.193: gps provider [u0] enabled
+    10-30 18:58:09.193: gps provider received location[1]
+    10-30 18:58:09.194: network provider added mock provider override
+    10-30 18:58:09.194: network provider [u0] disabled
+    10-30 18:58:09.194: network provider request = ProviderRequest[OFF]
+    10-30 18:58:09.194: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:09.195: network provider [u0] enabled
+    10-30 18:58:09.198: fused provider added mock provider override
+    10-30 18:58:09.198: fused provider [u0] disabled
+    10-30 18:58:09.198: network provider received location[1]
+    10-30 18:58:09.198: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:09.198: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:09.200: fused provider [u0] enabled
+    10-30 18:58:09.201: fused provider received location[1]
+    10-30 18:58:09.201: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:09.604: gps provider added mock provider override
+    10-30 18:58:09.605: gps provider [u0] disabled
+    10-30 18:58:09.605: gps provider [u0] enabled
+    10-30 18:58:09.606: network provider added mock provider override
+    10-30 18:58:09.606: network provider [u0] disabled
+    10-30 18:58:09.606: gps provider received location[1]
+    10-30 18:58:09.606: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:09.608: network provider request = ProviderRequest[OFF]
+    10-30 18:58:09.609: network provider [u0] enabled
+    10-30 18:58:09.613: fused provider added mock provider override
+    10-30 18:58:09.613: fused provider [u0] disabled
+    10-30 18:58:09.613: fused provider [u0] enabled
+    10-30 18:58:09.613: network provider received location[1]
+    10-30 18:58:09.613: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:09.613: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:09.615: fused provider received location[1]
+    10-30 18:58:09.615: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:10.021: gps provider added mock provider override
+    10-30 18:58:10.021: gps provider [u0] disabled
+    10-30 18:58:10.022: gps provider [u0] enabled
+    10-30 18:58:10.023: gps provider received location[1]
+    10-30 18:58:10.024: network provider added mock provider override
+    10-30 18:58:10.024: network provider [u0] disabled
+    10-30 18:58:10.024: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:10.025: network provider request = ProviderRequest[OFF]
+    10-30 18:58:10.026: network provider [u0] enabled
+    10-30 18:58:10.028: network provider received location[1]
+    10-30 18:58:10.028: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:10.028: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:10.029: fused provider added mock provider override
+    10-30 18:58:10.029: fused provider [u0] disabled
+    10-30 18:58:10.030: fused provider [u0] enabled
+    10-30 18:58:10.031: fused provider received location[1]
+    10-30 18:58:10.032: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:10.442: gps provider added mock provider override
+    10-30 18:58:10.442: gps provider [u0] disabled
+    10-30 18:58:10.442: gps provider [u0] enabled
+    10-30 18:58:10.443: network provider added mock provider override
+    10-30 18:58:10.443: network provider [u0] disabled
+    10-30 18:58:10.443: gps provider received location[1]
+    10-30 18:58:10.443: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:10.444: network provider request = ProviderRequest[OFF]
+    10-30 18:58:10.444: network provider [u0] enabled
+    10-30 18:58:10.446: network provider received location[1]
+    10-30 18:58:10.447: fused provider added mock provider override
+    10-30 18:58:10.447: fused provider [u0] disabled
+    10-30 18:58:10.447: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:10.447: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:10.449: fused provider [u0] enabled
+    10-30 18:58:10.451: fused provider received location[1]
+    10-30 18:58:10.451: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:10.862: gps provider added mock provider override
+    10-30 18:58:10.862: gps provider [u0] disabled
+    10-30 18:58:10.862: gps provider [u0] enabled
+    10-30 18:58:10.864: gps provider received location[1]
+    10-30 18:58:10.864: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:10.865: network provider added mock provider override
+    10-30 18:58:10.865: network provider [u0] disabled
+    10-30 18:58:10.865: network provider request = ProviderRequest[OFF]
+    10-30 18:58:10.866: network provider [u0] enabled
+    10-30 18:58:10.869: network provider received location[1]
+    10-30 18:58:10.870: fused provider added mock provider override
+    10-30 18:58:10.870: fused provider [u0] disabled
+    10-30 18:58:10.870: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022
+    10-30 18:58:10.870: network provider delivered location[1] to 1000/android[GnssService]/2B90B55B
+    10-30 18:58:10.874: fused provider [u0] enabled
+    10-30 18:58:10.880: fused provider received location[1]
+    10-30 18:58:10.880: passive provider delivered location[1] to 10143/com.google.android.gms[network_location_provider]/E1E7F022

@@ -1,0 +1,79 @@
+Location Manager State:
+  Current System Time: 10-30 18:58:14.293, Current Elapsed Time: +3m13s788ms
+  User Info:
+    current users: [0]
+  Location Settings:
+    Location Enabled: true
+    Throttling Whitelisted Packages:
+      com.google.android.gms
+    Bypass Whitelisted Packages:
+      com.google.android.dialer
+      com.google.android.gms
+  Battery Saver Location Mode: NO_CHANGE
+  Location Listeners:
+    Reciever[893f7ea listener UpdateRecord[passive 496/android[SensorNotificationService] Request[POWER_NONE passive] null] monitoring location: true]
+    Reciever[5860adb listener UpdateRecord[passive 1180/com.google.android.gms Request[POWER_NONE passive] null] monitoring location: false]
+    Reciever[1c38978 listener UpdateRecord[passive 496/android[LocationService] Request[POWER_NONE passive] null] monitoring location: false]
+  Active Records by Provider:
+    passive:
+      UpdateRecord[passive 496/android[LocationService] Request[POWER_NONE passive] null]
+      UpdateRecord[passive 496/android[SensorNotificationService] Request[POWER_NONE passive] null]
+      UpdateRecord[passive 1180/com.google.android.gms Request[POWER_NONE passive] null]
+  Historical Records by Provider:
+    passive: android: LocationService: Interval 0 seconds: Duration requested 2 total, 2 foreground, out of the last 2 minutes: Currently active
+    passive: android: SensorNotificationService: Interval 1800 seconds: Duration requested 2 total, 2 foreground, out of the last 2 minutes: Currently active
+    passive: com.google.android.gms: Interval 0 seconds: Duration requested 2 total, 2 foreground, out of the last 2 minutes: Currently active
+  Last Several Location Requests:
+    At 10-30 18:55:23.163: + passive request from android with feature LocationService at interval 0 seconds
+    At 10-30 18:55:25.946: + passive request from android with feature SensorNotificationService at interval 1800 seconds
+    At 10-30 18:55:34.777: + passive request from com.google.android.gms at interval 0 seconds
+    At 10-30 18:55:35.198: + passive request from com.google.android.gms at interval 0 seconds
+    At 10-30 18:55:57.695: - passive request from com.google.android.gms
+    At 10-30 18:56:48.661: + passive request from com.google.android.gms at interval 0 seconds
+    At 10-30 18:56:56.563: - passive request from com.google.android.gms
+    At 10-30 18:57:05.958: + passive request from com.google.android.gms at interval 0 seconds
+    At 10-30 18:57:15.833: - passive request from com.google.android.gms
+    At 10-30 18:57:20.234: + passive request from com.google.android.gms at interval 0 seconds
+    At 10-30 18:57:25.054: - passive request from com.google.android.gms
+  Geofences:
+  Location Providers:
+    passive provider:
+      last location=Location[fused 38.845056,-76.928366 hAcc=3 et=+3m13s686ms alt=18.0 vel=0.013888889 bear=0.0 vAcc=2 sAcc=0 bAcc=1 mock {Bundle[mParcelledData.dataSize=80]}]
+      last coarse location=Location[gps 41.873874,-87.619987 hAcc=2000 et=+55s958ms vAcc=2 sAcc=0 bAcc=1 mock]
+      enabled=true
+      allowed=true
+      properties=ProviderProperties[power=Low, accuracy=Coarse]
+      packages={android}
+      request=ProviderRequest[interval=0]
+    network provider [mock]:
+      last location=Location[network 38.845056,-76.928366 hAcc=3 et=+3m13s684ms alt=18.0 vel=0.013888889 bear=0.0 vAcc=2 sAcc=0 bAcc=1 mock {Bundle[mParcelledData.dataSize=80]}]
+      last coarse location=Location[network 38.846847,-76.923418 hAcc=2000 et=+3m13s684ms vAcc=2 sAcc=0 bAcc=1 mock]
+      enabled=true
+      allowed=true
+      properties=ProviderProperties[power=Low, accuracy=Fine, supports=[bearing, speed, altitude]]
+      packages=[]
+      request=ProviderRequest[OFF]
+      last mock location=Location[network 38.845056,-76.928366 hAcc=3 et=+3m13s684ms alt=18.0 vel=0.013888889 bear=0.0 vAcc=2 sAcc=0 bAcc=1 mock {Bundle[mParcelledData.dataSize=80]}]
+    fused provider [mock]:
+      last location=Location[fused 38.845056,-76.928366 hAcc=3 et=+3m13s686ms alt=18.0 vel=0.013888889 bear=0.0 vAcc=2 sAcc=0 bAcc=1 mock {Bundle[mParcelledData.dataSize=80]}]
+      last coarse location=Location[fused 38.846847,-76.923418 hAcc=2000 et=+3m13s686ms vAcc=2 sAcc=0 bAcc=1 mock]
+      enabled=true
+      allowed=true
+      properties=ProviderProperties[power=Low, accuracy=Fine, supports=[bearing, speed, altitude]]
+      packages=[]
+      request=ProviderRequest[OFF]
+      last mock location=Location[fused 38.845056,-76.928366 hAcc=3 et=+3m13s686ms alt=18.0 vel=0.013888889 bear=0.0 vAcc=2 sAcc=0 bAcc=1 mock {Bundle[mParcelledData.dataSize=80]}]
+    gps provider [mock]:
+      last location=Location[gps 38.845056,-76.928366 hAcc=3 et=+3m13s680ms alt=18.0 vel=0.013888889 bear=0.0 vAcc=2 sAcc=0 bAcc=1 mock {Bundle[mParcelledData.dataSize=80]}]
+      last coarse location=Location[gps 38.846847,-76.923418 hAcc=2000 et=+3m13s680ms vAcc=2 sAcc=0 bAcc=1 mock]
+      enabled=true
+      allowed=true
+      properties=ProviderProperties[power=Low, accuracy=Fine, supports=[bearing, speed, altitude]]
+      packages=[]
+      request=ProviderRequest[OFF]
+      last mock location=Location[gps 38.845056,-76.928366 hAcc=3 et=+3m13s680ms alt=18.0 vel=0.013888889 bear=0.0 vAcc=2 sAcc=0 bAcc=1 mock {Bundle[mParcelledData.dataSize=80]}]
+  GNSS:
+    GnssMeasurement Listeners:
+    GnssNavigationMessage Listeners:
+    GnssStatus Listeners:
+      1180/com.google.android.gms
