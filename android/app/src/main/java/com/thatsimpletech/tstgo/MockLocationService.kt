@@ -209,7 +209,8 @@ object MockBus {
     }
 
     fun inject(ctx: Context) {
-        if (!running) return
+        // Never broadcast the built-in default; only a pin someone actually set.
+        if (!running || !hasFix) return
         if (!isSelectedMockApp(ctx)) {
             lastOk = false
             lastError = "Select mock location app → TST Go (again after each install)."

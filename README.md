@@ -26,13 +26,15 @@ A **browser tab without the extension** cannot inject GPS into other apps. The w
 
 Requires Android 8 or newer. Not listed on the Play Store; sideload only.
 
-**Stop it without opening the app** (gets your real GPS back):
+**Stop GPS** (gets your real GPS back): tap the red **Stop GPS** button on the main screen, next to "Broadcast to other apps". The header shows the installed version, for example "TST Go 1.0.9".
+
+**Stop it without opening the app**:
 
 - Pull down the notification shade and tap **Stop GPS** on the TST Go notification.
 - Or long-press the TST Go icon and tap **Stop GPS**. Drag that item onto the home screen to keep a one-tap stop button there.
 - Or add the **TST Go stop button** widget: long-press the home screen → Widgets → TST Go.
 
-TST Go remembers your last pin. Reopening the app, or Android restarting it in the background, keeps you where you were instead of jumping back to the default.
+TST Go remembers your last pin. Reopening the app, or Android restarting it in the background, keeps you where you were instead of jumping back to the default. On a fresh install it leaves your real GPS alone until you pick a spot.
 
 ### Phone (browser app)
 

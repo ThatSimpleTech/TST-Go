@@ -50,7 +50,15 @@ class MainActivity : AppCompatActivity() {
     private var line: Polyline? = null
     private var lastTick = SystemClockElapsed()
     private var searchJob: Job? = null
-    private var syncingSwitch = false
+    private var broadcastOn = false
+
+    /** True once there is a spot worth remembering: a saved one, or one you picked or started. */
+    private var hasChosen = false
+    private var paintedOn: Boolean? = null
+    private var paintedSaved: Boolean? = null
+    private var paintedRunning: Boolean? = null
+    private var drawnAt: LatLng? = null
+    private var drawnHeading = Double.NaN
     private val gpsStopped: () -> Unit = { ui.post { onGpsStopped() } }
 
     private val tick = object : Runnable {
@@ -60,11 +68,16 @@ class MainActivity : AppCompatActivity() {
             lastTick = now
             val p = engine.pos()
             MockBus.setFix(p.lat, p.lng, engine.heading, engine.speedKmh, engine.label)
-            LastPin.save(this@MainActivity, p.lat, p.lng, engine.label)
+            if (engine.running) hasChosen = true
+            if (hasChosen) LastPin.save(this@MainActivity, p.lat, p.lng, engine.label)
             updateHud()
-            marker?.position = GeoPoint(p.lat, p.lng)
-            marker?.rotation = (-engine.heading).toFloat()
-            bind.map.invalidate()
+            if (p != drawnAt || engine.heading != drawnHeading) {
+                drawnAt = p
+                drawnHeading = engine.heading
+                marker?.position = GeoPoint(p.lat, p.lng)
+                marker?.rotation = (-engine.heading).toFloat()
+                bind.map.invalidate()
+            }
             if (engine.running && !engine.paused) {
                 val stick = kotlin.math.hypot(engine.stickX.toDouble(), engine.stickY.toDouble())
                 if (stick > 0.08 || engine.speedKmh > 0.4) {
@@ -83,8 +96,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(bind.root)
         fitSystemBars()
         favs = FavoritesStore(this)
-        restoreLastPin()
+        val hadSavedPin = restoreLastPin()
+        hasChosen = hadSavedPin
         MockBus.onStopped = gpsStopped
+        showVersion()
         askPerms()
 
         bind.map.setTileSource(EsriStreetTiles())
@@ -154,10 +169,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         bind.broadcastRow.setOnClickListener { MockBus.openDeveloperSettings(this) }
-        bind.broadcastSwitch.setOnCheckedChangeListener { _, on ->
-            if (syncingSwitch) return@setOnCheckedChangeListener
-            if (on) startBroadcast() else MockLocationService.stop(this)
-            paintBroadcast()
+        bind.broadcastBtn.setOnClickListener {
+            if (broadcastOn) stopFromApp() else setBroadcast(true)
         }
 
         lastTick = android.os.SystemClock.elapsedRealtime()
@@ -165,8 +178,9 @@ class MainActivity : AppCompatActivity() {
         updateHud()
         val start = engine.pos()
         MockBus.setFix(start.lat, start.lng, engine.heading, engine.speedKmh, engine.label)
-        bind.broadcastSwitch.isChecked = true
-        paintBroadcast()
+        // Pick up where you left off. With nothing saved yet (fresh install), leave the
+        // phone's real GPS alone until you choose a spot, instead of broadcasting the default.
+        if (hadSavedPin || MockBus.running) setBroadcast(true) else paintBroadcast()
         paintSave()
     }
 
@@ -198,20 +212,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     /** Comes back to the last pin instead of the built-in default (Times Square). */
-    private fun restoreLastPin() {
-        val fromMemory = if (MockBus.hasFix) LastPin.Pin(MockBus.lat, MockBus.lng, MockBus.label) else null
-        val saved = fromMemory ?: LastPin.load(this) ?: return
+    private fun restoreLastPin(): Boolean {
+        // If the GPS service is still running, show exactly what it is broadcasting.
+        val live = if (MockBus.running && MockBus.hasFix) LastPin.Pin(MockBus.lat, MockBus.lng, MockBus.label) else null
+        val saved = live ?: LastPin.load(this) ?: return false
         engine.pick = LatLng(saved.lat, saved.lng)
         engine.label = saved.label
+        return true
+    }
+
+    /** Shows the installed version in the header so it's obvious which build is running. */
+    private fun showVersion() {
+        val version = try {
+            packageManager.getPackageInfo(packageName, 0).versionName
+        } catch (_: Exception) {
+            null
+        }
+        bind.appTitle.text = if (version.isNullOrBlank()) getString(R.string.app_name) else "${getString(R.string.app_name)} $version"
+    }
+
+    private fun setBroadcast(on: Boolean) {
+        broadcastOn = on
+        if (on) hasChosen = true
+        if (on) startBroadcast() else MockLocationService.stop(this)
+        paintBroadcast()
+    }
+
+    /** The Stop GPS button on the main screen. */
+    private fun stopFromApp() {
+        broadcastOn = false
+        engine.stop()
+        stopFakeGps(this)
+        paintBroadcast()
+        paintGo()
+        updateHud()
     }
 
     /** GPS was stopped from the notification, widget, or shortcut. Match the screen to it. */
     private fun onGpsStopped() {
         if (isFinishing || isDestroyed || MockBus.running) return
-        if (bind.broadcastSwitch.isChecked) {
-            syncingSwitch = true
-            bind.broadcastSwitch.isChecked = false
-            syncingSwitch = false
+        if (broadcastOn) {
+            broadcastOn = false
             engine.stop()
         }
         paintBroadcast()
@@ -287,10 +328,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun paintSave() {
         val p = engine.pos()
-        val saved = favs.nearby(p.lat, p.lng) != null
-        bind.saveBtn.text = getString(if (saved) R.string.saved_pin else R.string.save_pin)
-        bind.saveBtn.setBackgroundResource(if (saved) R.drawable.bg_mode_on else R.drawable.bg_mode)
-        bind.placesBtn.text = if (favs.all().isEmpty()) getString(R.string.places) else "Places (${favs.all().size})"
+        val all = favs.all()
+        val saved = all.any { haversine(LatLng(it.lat, it.lng), p) < 40.0 }
+        if (paintedSaved != saved) {
+            paintedSaved = saved
+            bind.saveBtn.text = getString(if (saved) R.string.saved_pin else R.string.save_pin)
+            bind.saveBtn.setBackgroundResource(if (saved) R.drawable.bg_mode_on else R.drawable.bg_mode)
+        }
+        bind.placesBtn.show(if (all.isEmpty()) getString(R.string.places) else "Places (${all.size})")
     }
 
     private fun startBroadcast() {
@@ -432,11 +477,13 @@ class MainActivity : AppCompatActivity() {
         engine.waypoints.add(engine.pos())
         engine.waypoints.add(p)
         engine.teleport(p, name)
+        hasChosen = true
         MockBus.setFix(p.lat, p.lng, engine.heading, engine.speedKmh, name)
         LastPin.save(this, p.lat, p.lng, name, force = true)
         hideResults()
+        broadcastOn = true
         if (!MockBus.running) startBroadcast()
-        bind.broadcastSwitch.isChecked = true
+        paintBroadcast()
         MockLocationService.refresh(this)
         StopWidget.refresh(this)
         bind.map.controller.animateTo(GeoPoint(p.lat, p.lng), 16.0, 400L)
@@ -453,29 +500,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun paintBroadcast() {
-        val on = bind.broadcastSwitch.isChecked
+        val on = broadcastOn
+        if (paintedOn != on) {
+            paintedOn = on
+            bind.broadcastBtn.text = getString(if (on) R.string.stop_gps else R.string.start_gps)
+            bind.broadcastBtn.setBackgroundResource(if (on) R.drawable.bg_stop else R.drawable.bg_go)
+            bind.broadcastBtn.setTextColor(
+                ContextCompat.getColor(this, if (on) R.color.stop_fg else R.color.live_fg),
+            )
+        }
         val selected = MockBus.isSelectedMockApp(this)
         val muted = ContextCompat.getColor(this, R.color.subtle)
         val live = ContextCompat.getColor(this, R.color.live)
         val stop = ContextCompat.getColor(this, R.color.stop)
-        when {
-            !on -> {
-                bind.broadcastStatus.text = getString(R.string.broadcast_off)
-                bind.broadcastStatus.setTextColor(muted)
-            }
-            !selected -> {
-                bind.broadcastStatus.text = getString(R.string.broadcast_wait)
-                bind.broadcastStatus.setTextColor(stop)
-            }
-            MockBus.lastError != null && !MockBus.lastOk -> {
-                bind.broadcastStatus.text = MockBus.lastError
-                bind.broadcastStatus.setTextColor(stop)
-            }
-            else -> {
-                bind.broadcastStatus.text = getString(R.string.broadcast_live)
-                bind.broadcastStatus.setTextColor(live)
-            }
+        val err = MockBus.lastError
+        val (status, color) = when {
+            !on -> getString(R.string.broadcast_off) to muted
+            !selected -> getString(R.string.broadcast_wait) to stop
+            err != null && !MockBus.lastOk -> err to stop
+            else -> getString(R.string.broadcast_live) to live
         }
+        bind.broadcastStatus.show(status)
+        if (bind.broadcastStatus.currentTextColor != color) bind.broadcastStatus.setTextColor(color)
     }
 
     private fun askIgnoreBattery() {
@@ -490,7 +536,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun paintGo() {
-        if (engine.running) {
+        val running = engine.running
+        val label = getString(if (running) R.string.stop else R.string.go)
+        if (paintedRunning == running && bind.goBtn.text.toString() == label) return
+        paintedRunning = running
+        if (running) {
             bind.goBtn.setBackgroundResource(R.drawable.bg_stop)
             bind.goBtn.setTextColor(ContextCompat.getColor(this, R.color.stop_fg))
             bind.goBtn.text = getString(R.string.stop)
@@ -503,15 +553,22 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateHud() {
         val p = engine.pos()
-        bind.hudCoords.text = formatPair(p)
-        bind.hudLabel.text = engine.label
-        bind.hudStatus.text = when {
-            engine.running && engine.paused -> getString(R.string.paused)
-            engine.running -> getString(R.string.live_signal)
-            else -> getString(R.string.idle_pin)
-        }
-        bind.hudMeta.text = "${headingLabel(engine.heading)}  ·  ${"%.1f".format(engine.speedKmh)} km/h"
+        bind.hudCoords.show(formatPair(p))
+        bind.hudLabel.show(engine.label)
+        bind.hudStatus.show(
+            when {
+                engine.running && engine.paused -> getString(R.string.paused)
+                engine.running -> getString(R.string.live_signal)
+                else -> getString(R.string.idle_pin)
+            },
+        )
+        bind.hudMeta.show("${headingLabel(engine.heading)}  ·  ${"%.1f".format(engine.speedKmh)} km/h")
         paintSave()
+    }
+
+    /** Only touch the view when the text really changes (this runs 20 times a second). */
+    private fun TextView.show(value: CharSequence) {
+        if (text.toString() != value.toString()) text = value
     }
 
     private fun askPerms() {
@@ -536,7 +593,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         val p = engine.pos()
-        LastPin.save(this, p.lat, p.lng, engine.label, force = true)
+        if (hasChosen) LastPin.save(this, p.lat, p.lng, engine.label, force = true)
         bind.map.onPause()
         super.onPause()
     }
